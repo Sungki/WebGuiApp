@@ -1,126 +1,86 @@
-// ImGui - standalone example application for SDL2 + OpenGL
+#include "SDL.h"
+#undef main
 
-#ifdef __EMSCRIPTEN__
-#include "emscripten.h"
-#endif
-//#include "imgui.h"
-//#include "imgui_impl_sdl.h"
-#include <stdio.h>
-#include <SDL.h>
-#include <SDL_opengl.h>
+#include "imgui.h"
+#include "imgui_sdl.h"
 
-SDL_Window* window;
-bool done;
-//ImVec4 clear_color;
-bool show_test_window;
-bool show_another_window;
-
-void mainloop()
+int main()
 {
-    SDL_Event event;
-    while (SDL_PollEvent(&event))
-    {
-//        ImGui_ImplSdl_ProcessEvent(&event);
-        if (event.type == SDL_QUIT)
-            done = true;
-    }
-//    ImGui_ImplSdl_NewFrame(window);
+	SDL_Init(SDL_INIT_EVERYTHING);
 
-    // 1. Show a simple window
-    // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
-    {
-        static float f = 0.0f;
-//        ImGui::Text("Hello, world!");
-//        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-//        ImGui::ColorEdit3("clear color", (float*)&clear_color);
-//        if (ImGui::Button("Test Window")) show_test_window ^= 1;
-//        if (ImGui::Button("Another Window")) show_another_window ^= 1;
-//        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-    }
+	SDL_Window* window = SDL_CreateWindow("SDL2 ImGui Renderer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_RESIZABLE);
+	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-    // 2. Show another simple window, this time using an explicit Begin/End pair
-    if (show_another_window)
-    {
-//        ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
-//        ImGui::Begin("Another Window", &show_another_window);
-//        ImGui::Text("Hello");
-//        ImGui::End();
-    }
+	ImGui::CreateContext();
+	ImGuiSDL::Initialize(renderer, 800, 600);
 
-    // 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
-    if (show_test_window)
-    {
-//        ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
-//        ImGui::ShowTestWindow(&show_test_window);
-    }
+	SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, 100, 100);
+	{
+		SDL_SetRenderTarget(renderer, texture);
+		SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
+		SDL_RenderClear(renderer);
+		SDL_SetRenderTarget(renderer, nullptr);
+	}
 
-    // Rendering
-//    glViewport(0, 0, (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
-//    glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-//    glClear(GL_COLOR_BUFFER_BIT);
-//    ImGui::Render();
-    SDL_GL_SwapWindow(window);
-}
+	bool run = true;
+	while (run)
+	{
+		ImGuiIO& io = ImGui::GetIO();
 
-int main(int, char**)
-{
-    // Setup SDL
-    if (SDL_Init(SDL_INIT_VIDEO) != 0)
-    {
-        printf("Error: %s\n", SDL_GetError());
-        return -1;
-    }
+		int wheel = 0;
 
-    // Setup window
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-    SDL_DisplayMode current;
-    SDL_GetCurrentDisplayMode(0, &current);
-    window = SDL_CreateWindow("WebGuiApp", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
-    SDL_GLContext glcontext = SDL_GL_CreateContext(window);
+		SDL_Event e;
+		while (SDL_PollEvent(&e))
+		{
+			if (e.type == SDL_QUIT) run = false;
+			else if (e.type == SDL_WINDOWEVENT)
+			{
+				if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+				{
+					io.DisplaySize.x = static_cast<float>(e.window.data1);
+					io.DisplaySize.y = static_cast<float>(e.window.data2);
+				}
+			}
+			else if (e.type == SDL_MOUSEWHEEL)
+			{
+				wheel = e.wheel.y;
+			}
+		}
 
-    // Setup ImGui binding
-//    ImGui_ImplSdl_Init(window);
+		int mouseX, mouseY;
+		const int buttons = SDL_GetMouseState(&mouseX, &mouseY);
 
-    // Load Fonts
-    // (see extra_fonts/README.txt for more details)
-    //ImGuiIO& io = ImGui::GetIO();
-    //io.Fonts->AddFontDefault();
-    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/Cousine-Regular.ttf", 15.0f);
-    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/DroidSans.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/ProggyClean.ttf", 13.0f);
-    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/ProggyTiny.ttf", 10.0f);
-    //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
+		// Setup low-level inputs (e.g. on Win32, GetKeyboardState(), or write to those fields from your Windows message loop handlers, etc.)
 
-    // Merge glyphs from multiple fonts into one (e.g. combine default font with another with Chinese glyphs, or add icons)
-    //ImWchar icons_ranges[] = { 0xf000, 0xf3ff, 0 };
-    //ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
-    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/DroidSans.ttf", 18.0f);
-    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/fontawesome-webfont.ttf", 18.0f, &icons_config, icons_ranges);
+		io.DeltaTime = 1.0f / 60.0f;
+		io.MousePos = ImVec2(static_cast<float>(mouseX), static_cast<float>(mouseY));
+		io.MouseDown[0] = buttons & SDL_BUTTON(SDL_BUTTON_LEFT);
+		io.MouseDown[1] = buttons & SDL_BUTTON(SDL_BUTTON_RIGHT);
+		io.MouseWheel = static_cast<float>(wheel);
 
-    show_test_window = true;
-    show_another_window = false;
-//    clear_color = ImColor(114, 144, 154);
+		ImGui::NewFrame();
 
-#ifdef __EMSCRIPTEN__
-    emscripten_set_main_loop(mainloop, 0, 0);
-#else
-    // Main loop
-    done = false;
-    while (!done)
-    {
-        mainloop();
-    }
-    // Cleanup
-//    ImGui_ImplSdl_Shutdown();
-    SDL_GL_DeleteContext(glcontext);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-#endif
+		ImGui::ShowDemoWindow();
 
+		ImGui::Begin("Image");
+		ImGui::Image(texture, ImVec2(100, 100));
+		ImGui::End();
 
-    return 0;
+		SDL_SetRenderDrawColor(renderer, 114, 144, 154, 255);
+		SDL_RenderClear(renderer);
+
+		ImGui::Render();
+		ImGuiSDL::Render(ImGui::GetDrawData());
+
+		SDL_RenderPresent(renderer);
+	}
+
+	ImGuiSDL::Deinitialize();
+
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+
+	ImGui::DestroyContext();
+
+	return 0;
 }
