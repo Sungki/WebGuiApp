@@ -1,95 +1,126 @@
-#define OLC_PGE_APPLICATION
-#include "olcPixelGameEngine.h"
+// ImGui - standalone example application for SDL2 + OpenGL
 
-#define OLC_PGEX_DEAR_IMGUI_IMPLEMENTATION
-#include "imgui_impl_pge.h"
+#ifdef __EMSCRIPTEN__
+#include "emscripten.h"
+#endif
+//#include "imgui.h"
+//#include "imgui_impl_sdl.h"
+#include <stdio.h>
+#include <SDL.h>
+#include <SDL_opengl.h>
 
-class StarField : public olc::PixelGameEngine
+SDL_Window* window;
+bool done;
+//ImVec4 clear_color;
+bool show_test_window;
+bool show_another_window;
+
+void mainloop()
 {
-	olc::imgui::PGE_ImGUI pge_imgui;
-	int m_GameLayer;
+    SDL_Event event;
+    while (SDL_PollEvent(&event))
+    {
+//        ImGui_ImplSdl_ProcessEvent(&event);
+        if (event.type == SDL_QUIT)
+            done = true;
+    }
+//    ImGui_ImplSdl_NewFrame(window);
 
-public:
-	StarField() : pge_imgui(false)
-	{ sAppName = "WebGuiApp"; }
+    // 1. Show a simple window
+    // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
+    {
+        static float f = 0.0f;
+//        ImGui::Text("Hello, world!");
+//        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+//        ImGui::ColorEdit3("clear color", (float*)&clear_color);
+//        if (ImGui::Button("Test Window")) show_test_window ^= 1;
+//        if (ImGui::Button("Another Window")) show_another_window ^= 1;
+//        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    }
 
-	const int nStars = 1000;
+    // 2. Show another simple window, this time using an explicit Begin/End pair
+    if (show_another_window)
+    {
+//        ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
+//        ImGui::Begin("Another Window", &show_another_window);
+//        ImGui::Text("Hello");
+//        ImGui::End();
+    }
 
-	struct sStar
-	{
-		float fAngle = 0.0f;
-		float fDistance = 0.0f;
-		float fSpeed = 0.0f;
-		olc::Pixel col = olc::WHITE;
-	};
+    // 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
+    if (show_test_window)
+    {
+//        ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
+//        ImGui::ShowTestWindow(&show_test_window);
+    }
 
-	std::vector<sStar> vStars;
-	olc::vf2d vOrigin;
+    // Rendering
+//    glViewport(0, 0, (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
+//    glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+//    glClear(GL_COLOR_BUFFER_BIT);
+//    ImGui::Render();
+    SDL_GL_SwapWindow(window);
+}
 
-public:
-	float Random(float a, float b)
-	{
-		return (b - a) * (float(rand()) / float(RAND_MAX)) + a;
-	}
-
-	bool OnUserCreate() override
-	{
-		vStars.resize(nStars);
-
-		for (auto& star : vStars)
-		{
-			star.fAngle = Random(0.0f, 2.0f * 3.1459f);
-			star.fSpeed = Random(10.0f, 100.0f);
-			star.fDistance = Random(1.0f, 100.0f);
-			float lum = Random(0.3f, 1.0f);
-			star.col = olc::PixelF(lum, lum, lum, 1.0f);
-		}
-
-		vOrigin = { float(ScreenWidth() / 2), float(ScreenHeight() / 2) };
-
-
-		m_GameLayer = CreateLayer();
-		EnableLayer(m_GameLayer, true);
-		SetLayerCustomRenderFunction(0, std::bind(&StarField::DrawUI, this));
-
-		return true;
-	}
-
-	bool OnUserUpdate(float fElapsedTime) override
-	{
-		Clear(olc::BLACK);
-
-		for (auto& star : vStars)
-		{
-			star.fDistance += star.fSpeed * fElapsedTime * (star.fDistance / 100.0f);
-			if (star.fDistance > 200.0f)
-			{
-				star.fAngle = Random(0.0f, 2.0f * 3.1459f);
-				star.fSpeed = Random(10.0f, 100.0f);
-				star.fDistance = Random(1.0f, 100.0f);
-				float lum = Random(0.3f, 1.0f);
-				star.col = olc::PixelF(lum, lum, lum, 1.0f);
-			}
-
-			Draw(olc::vf2d(cos(star.fAngle), sin(star.fAngle)) * star.fDistance + vOrigin, star.col * (star.fDistance / 100.0f));
-		}
-
-		SetDrawTarget((uint8_t)m_GameLayer);
-		ImGui::ShowDemoWindow();
-
-		return true;
-	}
-
-	void DrawUI(void) {
-		pge_imgui.ImGui_ImplPGE_Render();
-	}
-};
-
-int main()
+int main(int, char**)
 {
-	StarField demo;
-	if (demo.Construct(256, 240, 4, 4))
-		demo.Start();
+    // Setup SDL
+    if (SDL_Init(SDL_INIT_VIDEO) != 0)
+    {
+        printf("Error: %s\n", SDL_GetError());
+        return -1;
+    }
 
-	return 0;
+    // Setup window
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+    SDL_DisplayMode current;
+    SDL_GetCurrentDisplayMode(0, &current);
+    window = SDL_CreateWindow("WebGuiApp", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+    SDL_GLContext glcontext = SDL_GL_CreateContext(window);
+
+    // Setup ImGui binding
+//    ImGui_ImplSdl_Init(window);
+
+    // Load Fonts
+    // (see extra_fonts/README.txt for more details)
+    //ImGuiIO& io = ImGui::GetIO();
+    //io.Fonts->AddFontDefault();
+    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/Cousine-Regular.ttf", 15.0f);
+    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/DroidSans.ttf", 16.0f);
+    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/ProggyClean.ttf", 13.0f);
+    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/ProggyTiny.ttf", 10.0f);
+    //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
+
+    // Merge glyphs from multiple fonts into one (e.g. combine default font with another with Chinese glyphs, or add icons)
+    //ImWchar icons_ranges[] = { 0xf000, 0xf3ff, 0 };
+    //ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
+    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/DroidSans.ttf", 18.0f);
+    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/fontawesome-webfont.ttf", 18.0f, &icons_config, icons_ranges);
+
+    show_test_window = true;
+    show_another_window = false;
+//    clear_color = ImColor(114, 144, 154);
+
+#ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop(mainloop, 0, 0);
+#else
+    // Main loop
+    done = false;
+    while (!done)
+    {
+        mainloop();
+    }
+    // Cleanup
+//    ImGui_ImplSdl_Shutdown();
+    SDL_GL_DeleteContext(glcontext);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+#endif
+
+
+    return 0;
 }
