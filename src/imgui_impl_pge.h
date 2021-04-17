@@ -302,14 +302,14 @@ namespace olc
 #ifdef OLC_PGEX_DEAR_IMGUI_IMPLEMENTATION
 //#undef OLC_PGEX_DEAR_IMGUI_IMPLEMENTATION
 
-#ifdef OLC_GFX_OPENGL33
-#define GLEW_STATIC
-#include <GL/glew.h>
-#undef GLEW_STATIC 
-#include "imgui_impl_opengl3.h"
-#else
+//#ifdef OLC_GFX_OPENGL33
+//#define GLEW_STATIC
+//#include <GL/glew.h>
+//#undef GLEW_STATIC 
+//#include "imgui_impl_opengl3.h"
+//#else
 #include "imgui_impl_opengl2.h"
-#endif
+//#endif
 
 namespace olc
 {
@@ -322,12 +322,12 @@ namespace olc
 		olc::rcode PGE_ImGUI::ImGui_ImplPGE_Init() {
 			ImGui::CreateContext();
 
-#ifdef OLC_GFX_OPENGL33
-			GLenum err = glewInit();
-			ImGui_ImplOpenGL3_Init();
-#else
+//#ifdef OLC_GFX_OPENGL33
+//			GLenum err = glewInit();
+//			ImGui_ImplOpenGL3_Init();
+//#else
 			ImGui_ImplOpenGL2_Init();
-#endif
+//#endif
 			ImGuiIO& io = ImGui::GetIO();
 
 			io.BackendPlatformName = "imgui_impl_pge";
@@ -485,11 +485,11 @@ namespace olc
 		}
 
 		void PGE_ImGUI::ImGui_ImplPGE_NewFrame(void) {
-#ifdef OLC_GFX_OPENGL33
-			ImGui_ImplOpenGL3_NewFrame();
-#else
+//#ifdef OLC_GFX_OPENGL33
+//			ImGui_ImplOpenGL3_NewFrame();
+//#else
 			ImGui_ImplOpenGL2_NewFrame();
-#endif
+//#endif
 			ImGuiIO& io = ImGui::GetIO();
 			olc::vi2d windowSize = pge->GetWindowSize();
 			IM_ASSERT(io.Fonts->IsBuilt() && "Font atlas not built! It is generally built by the renderer back-end. Missing call to renderer _NewFrame() function? e.g. ImGui_ImplOpenGL2_NewFrame().");
@@ -510,11 +510,11 @@ namespace olc
 		void PGE_ImGUI::ImGui_ImplPGE_Render(void) {
 			//This finishes the Dear ImGui and renders it to the screen
 			ImGui::Render();
-#ifdef OLC_GFX_OPENGL33
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-#else
+//#ifdef OLC_GFX_OPENGL33
+//			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+//#else
 			ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
-#endif
+//#endif
 		}
 
 		//Before the OnUserCreate function runs, we will register the UI drawing function
