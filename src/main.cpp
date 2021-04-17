@@ -1,10 +1,17 @@
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
 
+#define OLC_PGEX_DEAR_IMGUI_IMPLEMENTATION
+#include "imgui_impl_pge.h"
+
 class StarField : public olc::PixelGameEngine
 {
+	olc::imgui::PGE_ImGUI pge_imgui;
+	int m_GameLayer;
+
 public:
-	StarField() { sAppName = "WebGuiApp"; }
+	StarField() : pge_imgui(false)
+	{ sAppName = "WebGuiApp"; }
 
 	const int nStars = 1000;
 
@@ -39,6 +46,12 @@ public:
 		}
 
 		vOrigin = { float(ScreenWidth() / 2), float(ScreenHeight() / 2) };
+
+
+		m_GameLayer = CreateLayer();
+		EnableLayer(m_GameLayer, true);
+		SetLayerCustomRenderFunction(0, std::bind(&StarField::DrawUI, this));
+
 		return true;
 	}
 
@@ -61,7 +74,14 @@ public:
 			Draw(olc::vf2d(cos(star.fAngle), sin(star.fAngle)) * star.fDistance + vOrigin, star.col * (star.fDistance / 100.0f));
 		}
 
+		SetDrawTarget((uint8_t)m_GameLayer);
+		ImGui::ShowDemoWindow();
+
 		return true;
+	}
+
+	void DrawUI(void) {
+		pge_imgui.ImGui_ImplPGE_Render();
 	}
 };
 
