@@ -210,7 +210,11 @@
 #include <chrono>
 #include <algorithm>
 #include <functional>
+#include <vector>
 #include "SDL.h"
+
+#include "imgui.h"
+#include "imgui_sdl.h"
 
 #undef min
 #undef max
@@ -229,15 +233,28 @@ namespace olc
     		};
     	};
     	
+        enum Mode { NORMAL, MASK, ALPHA, CUSTOM };
+
         Pixel();
-    
         Pixel(Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha = 255);
-    
         Pixel(Uint32 p);
 
-        enum Mode { NORMAL, MASK, ALPHA, CUSTOM };
+        Pixel& operator = (const Pixel& v) = default;
+        bool   operator ==(const Pixel & p) const;
+        bool   operator !=(const Pixel & p) const;
+        Pixel  operator * (const float i) const;
+        Pixel  operator / (const float i) const;
+        Pixel& operator *=(const float i);
+        Pixel& operator /=(const float i);
+        Pixel  operator + (const Pixel & p) const;
+        Pixel  operator - (const Pixel & p) const;
+        Pixel& operator +=(const Pixel & p);
+        Pixel& operator -=(const Pixel & p);
+        Pixel  inv() const;
     };
     
+    Pixel PixelF(float red, float green, float blue, float alpha = 1.0f);
+
     static const Pixel
     WHITE(255, 255, 255),
     GREY(192, 192, 192), DARK_GREY(128, 128, 128), VERY_DARK_GREY(64, 64, 64),
@@ -259,7 +276,7 @@ namespace olc
 
     //==================================================================================
 
-    template <class T>
+ /*   template <class T>
     struct v2d_generic
     {
         T x = 0;
@@ -281,7 +298,7 @@ namespace olc
         inline v2d_generic& operator -= (const v2d_generic & rhs) { this->x -= rhs.x; this->y -= rhs.y; return *this; }
         inline v2d_generic& operator *= (const T & rhs) { this->x *= rhs; this->y *= rhs; return *this; }
         inline v2d_generic& operator /= (const T & rhs) { this->x /= rhs; this->y /= rhs; return *this; }
-        inline T& operator [] (std::size_t i) { return *((T*)this + i);	   /* <-- D'oh :( */ }
+        inline T& operator [] (std::size_t i) { return *((T*)this + i);}
     };
 
     template<class T> inline v2d_generic<T> operator * (const float& lhs, const v2d_generic<T> & rhs) { return v2d_generic<T>(lhs * rhs.x, lhs * rhs.y); }
@@ -293,8 +310,91 @@ namespace olc
 
     typedef v2d_generic<int> vi2d;
     typedef v2d_generic<float> vf2d;
-    typedef v2d_generic<double> vd2d;
+    typedef v2d_generic<double> vd2d;*/
 
+    template <class T>
+    struct v2d_generic
+    {
+        T x = 0;
+        T y = 0;
+        v2d_generic() : x(0), y(0) {}
+        v2d_generic(T _x, T _y) : x(_x), y(_y) {}
+        v2d_generic(const v2d_generic& v) : x(v.x), y(v.y) {}
+        v2d_generic& operator=(const v2d_generic& v) = default;
+        T mag() const { return T(std::sqrt(x * x + y * y)); }
+        T mag2() const { return x * x + y * y; }
+        v2d_generic  norm() const { T r = 1 / mag(); return v2d_generic(x * r, y * r); }
+        v2d_generic  perp() const { return v2d_generic(-y, x); }
+        v2d_generic  floor() const { return v2d_generic(std::floor(x), std::floor(y)); }
+        v2d_generic  ceil() const { return v2d_generic(std::ceil(x), std::ceil(y)); }
+        v2d_generic  max(const v2d_generic& v) const { return v2d_generic(std::max(x, v.x), std::max(y, v.y)); }
+        v2d_generic  min(const v2d_generic& v) const { return v2d_generic(std::min(x, v.x), std::min(y, v.y)); }
+        T dot(const v2d_generic& rhs) const { return this->x * rhs.x + this->y * rhs.y; }
+        T cross(const v2d_generic& rhs) const { return this->x * rhs.y - this->y * rhs.x; }
+        v2d_generic  operator +  (const v2d_generic& rhs) const { return v2d_generic(this->x + rhs.x, this->y + rhs.y); }
+        v2d_generic  operator -  (const v2d_generic& rhs) const { return v2d_generic(this->x - rhs.x, this->y - rhs.y); }
+        v2d_generic  operator *  (const T& rhs)           const { return v2d_generic(this->x * rhs, this->y * rhs); }
+        v2d_generic  operator *  (const v2d_generic& rhs) const { return v2d_generic(this->x * rhs.x, this->y * rhs.y); }
+        v2d_generic  operator /  (const T& rhs)           const { return v2d_generic(this->x / rhs, this->y / rhs); }
+        v2d_generic  operator /  (const v2d_generic& rhs) const { return v2d_generic(this->x / rhs.x, this->y / rhs.y); }
+        v2d_generic& operator += (const v2d_generic& rhs) { this->x += rhs.x; this->y += rhs.y; return *this; }
+        v2d_generic& operator -= (const v2d_generic& rhs) { this->x -= rhs.x; this->y -= rhs.y; return *this; }
+        v2d_generic& operator *= (const T& rhs) { this->x *= rhs; this->y *= rhs; return *this; }
+        v2d_generic& operator /= (const T& rhs) { this->x /= rhs; this->y /= rhs; return *this; }
+        v2d_generic& operator *= (const v2d_generic& rhs) { this->x *= rhs.x; this->y *= rhs.y; return *this; }
+        v2d_generic& operator /= (const v2d_generic& rhs) { this->x /= rhs.x; this->y /= rhs.y; return *this; }
+        v2d_generic  operator +  () const { return { +x, +y }; }
+        v2d_generic  operator -  () const { return { -x, -y }; }
+        bool operator == (const v2d_generic& rhs) const { return (this->x == rhs.x && this->y == rhs.y); }
+        bool operator != (const v2d_generic& rhs) const { return (this->x != rhs.x || this->y != rhs.y); }
+        const std::string str() const { return std::string("(") + std::to_string(this->x) + "," + std::to_string(this->y) + ")"; }
+        friend std::ostream& operator << (std::ostream& os, const v2d_generic& rhs) { os << rhs.str(); return os; }
+        operator v2d_generic<int32_t>() const { return { static_cast<int32_t>(this->x), static_cast<int32_t>(this->y) }; }
+        operator v2d_generic<float>() const { return { static_cast<float>(this->x), static_cast<float>(this->y) }; }
+        operator v2d_generic<double>() const { return { static_cast<double>(this->x), static_cast<double>(this->y) }; }
+    };
+
+    // Note: joshinils has some good suggestions here, but they are complicated to implement at this moment, 
+    // however they will appear in a future version of PGE
+    template<class T> inline v2d_generic<T> operator * (const float& lhs, const v2d_generic<T>& rhs)
+    {
+        return v2d_generic<T>((T)(lhs * (float)rhs.x), (T)(lhs * (float)rhs.y));
+    }
+    template<class T> inline v2d_generic<T> operator * (const double& lhs, const v2d_generic<T>& rhs)
+    {
+        return v2d_generic<T>((T)(lhs * (double)rhs.x), (T)(lhs * (double)rhs.y));
+    }
+    template<class T> inline v2d_generic<T> operator * (const int& lhs, const v2d_generic<T>& rhs)
+    {
+        return v2d_generic<T>((T)(lhs * (int)rhs.x), (T)(lhs * (int)rhs.y));
+    }
+    template<class T> inline v2d_generic<T> operator / (const float& lhs, const v2d_generic<T>& rhs)
+    {
+        return v2d_generic<T>((T)(lhs / (float)rhs.x), (T)(lhs / (float)rhs.y));
+    }
+    template<class T> inline v2d_generic<T> operator / (const double& lhs, const v2d_generic<T>& rhs)
+    {
+        return v2d_generic<T>((T)(lhs / (double)rhs.x), (T)(lhs / (double)rhs.y));
+    }
+    template<class T> inline v2d_generic<T> operator / (const int& lhs, const v2d_generic<T>& rhs)
+    {
+        return v2d_generic<T>((T)(lhs / (int)rhs.x), (T)(lhs / (int)rhs.y));
+    }
+
+    // To stop dandistine crying...
+    template<class T, class U> inline bool operator < (const v2d_generic<T>& lhs, const v2d_generic<U>& rhs)
+    {
+        return lhs.y < rhs.y || (lhs.y == rhs.y && lhs.x < rhs.x);
+    }
+    template<class T, class U> inline bool operator > (const v2d_generic<T>& lhs, const v2d_generic<U>& rhs)
+    {
+        return lhs.y > rhs.y || (lhs.y == rhs.y && lhs.x > rhs.x);
+    }
+
+    typedef v2d_generic<int32_t> vi2d;
+    typedef v2d_generic<uint32_t> vu2d;
+    typedef v2d_generic<float> vf2d;
+    typedef v2d_generic<double> vd2d;
     //=============================================================
 
     struct HWButton
@@ -479,6 +579,7 @@ namespace olc
 
         // Draws a single Pixel
         virtual bool Draw(int32_t x, int32_t y, Pixel p = olc::WHITE);
+        bool Draw(const olc::vi2d& pos, Pixel p = olc::WHITE);
         // Draws a line from (x1,y1) to (x2,y2)
         void DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, Pixel p = olc::WHITE, uint32_t pattern = 0xFFFFFFFF);
         // Draws a circle located at (x,y) with radius
@@ -651,6 +752,93 @@ namespace olc
     Pixel::Pixel(Uint32 p)
     {
         n = p;
+    }
+
+    bool Pixel::operator==(const Pixel& p) const
+    {
+        return n == p.n;
+    }
+
+    bool Pixel::operator!=(const Pixel& p) const
+    {
+        return n != p.n;
+    }
+
+    Pixel  Pixel::operator * (const float i) const
+    {
+        float fR = std::min(255.0f, std::max(0.0f, float(r) * i));
+        float fG = std::min(255.0f, std::max(0.0f, float(g) * i));
+        float fB = std::min(255.0f, std::max(0.0f, float(b) * i));
+        return Pixel(uint8_t(fR), uint8_t(fG), uint8_t(fB), a);
+    }
+
+    Pixel  Pixel::operator / (const float i) const
+    {
+        float fR = std::min(255.0f, std::max(0.0f, float(r) / i));
+        float fG = std::min(255.0f, std::max(0.0f, float(g) / i));
+        float fB = std::min(255.0f, std::max(0.0f, float(b) / i));
+        return Pixel(uint8_t(fR), uint8_t(fG), uint8_t(fB), a);
+    }
+
+    Pixel& Pixel::operator *=(const float i)
+    {
+        this->r = uint8_t(std::min(255.0f, std::max(0.0f, float(r) * i)));
+        this->g = uint8_t(std::min(255.0f, std::max(0.0f, float(g) * i)));
+        this->b = uint8_t(std::min(255.0f, std::max(0.0f, float(b) * i)));
+        return *this;
+    }
+
+    Pixel& Pixel::operator /=(const float i)
+    {
+        this->r = uint8_t(std::min(255.0f, std::max(0.0f, float(r) / i)));
+        this->g = uint8_t(std::min(255.0f, std::max(0.0f, float(g) / i)));
+        this->b = uint8_t(std::min(255.0f, std::max(0.0f, float(b) / i)));
+        return *this;
+    }
+
+    Pixel  Pixel::operator + (const Pixel& p) const
+    {
+        uint8_t nR = uint8_t(std::min(255, std::max(0, int(r) + int(p.r))));
+        uint8_t nG = uint8_t(std::min(255, std::max(0, int(g) + int(p.g))));
+        uint8_t nB = uint8_t(std::min(255, std::max(0, int(b) + int(p.b))));
+        return Pixel(nR, nG, nB, a);
+    }
+
+    Pixel  Pixel::operator - (const Pixel& p) const
+    {
+        uint8_t nR = uint8_t(std::min(255, std::max(0, int(r) - int(p.r))));
+        uint8_t nG = uint8_t(std::min(255, std::max(0, int(g) - int(p.g))));
+        uint8_t nB = uint8_t(std::min(255, std::max(0, int(b) - int(p.b))));
+        return Pixel(nR, nG, nB, a);
+    }
+
+    Pixel& Pixel::operator += (const Pixel& p)
+    {
+        this->r = uint8_t(std::min(255, std::max(0, int(r) + int(p.r))));
+        this->g = uint8_t(std::min(255, std::max(0, int(g) + int(p.g))));
+        this->b = uint8_t(std::min(255, std::max(0, int(b) + int(p.b))));
+        return *this;
+    }
+
+    Pixel& Pixel::operator -= (const Pixel& p) // Thanks Au Lit
+    {
+        this->r = uint8_t(std::min(255, std::max(0, int(r) - int(p.r))));
+        this->g = uint8_t(std::min(255, std::max(0, int(g) - int(p.g))));
+        this->b = uint8_t(std::min(255, std::max(0, int(b) - int(p.b))));
+        return *this;
+    }
+
+    Pixel Pixel::inv() const
+    {
+        uint8_t nR = uint8_t(std::min(255, std::max(0, 255 - int(r))));
+        uint8_t nG = uint8_t(std::min(255, std::max(0, 255 - int(g))));
+        uint8_t nB = uint8_t(std::min(255, std::max(0, 255 - int(b))));
+        return Pixel(nR, nG, nB, a);
+    }
+
+    Pixel PixelF(float red, float green, float blue, float alpha)
+    {
+        return Pixel(uint8_t(red * 255.0f), uint8_t(green * 255.0f), uint8_t(blue * 255.0f), uint8_t(alpha * 255.0f));
     }
 
 //ResourcePack
@@ -1190,6 +1378,11 @@ namespace olc
     Sint32 PixelGameEngine::ScreenHeight()
     {
         return nScreenHeight;
+    }
+
+    bool PixelGameEngine::Draw(const olc::vi2d& pos, Pixel p)
+    {
+        return Draw(pos.x, pos.y, p);
     }
 
     bool PixelGameEngine::Draw(int32_t x, int32_t y, Pixel p)
@@ -1767,6 +1960,8 @@ namespace olc
 
                 float elapsedTime = elapsed.count();
 
+                ImGuiIO& io = ImGui::GetIO();
+
                 SDL_Event event;
                 while (SDL_PollEvent(&event))
                 {
@@ -1849,6 +2044,13 @@ namespace olc
                     case SDL_CONTROLLERBUTTONUP:
                         pControllerButtonNewState[(int)mapControllerButtons[event.cbutton.button]] = false;
                         break;
+                    case SDL_WINDOWEVENT:
+                        if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+                        {
+                            io.DisplaySize.x = static_cast<float>(event.window.data1);
+                            io.DisplaySize.y = static_cast<float>(event.window.data2);
+                        }
+                        break;
                     }
                 }
 
@@ -1922,6 +2124,19 @@ namespace olc
                 nMouseWheelDelta = nMouseWheelDeltaCache;
                 nMouseWheelDeltaCache = 0;
 
+
+                int mouseX, mouseY;
+                const int buttons = SDL_GetMouseState(&mouseX, &mouseY);
+
+                io.DeltaTime = 1.0f / 60.0f;
+                io.MousePos = ImVec2(static_cast<float>(mouseX), static_cast<float>(mouseY));
+                io.MouseDown[0] = buttons & SDL_BUTTON(SDL_BUTTON_LEFT);
+                io.MouseDown[1] = buttons & SDL_BUTTON(SDL_BUTTON_RIGHT);
+
+                ImGui::NewFrame();
+
+                ImGui::ShowDemoWindow();
+
                 //SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
                 //SDL_RenderClear(renderer);
                 if (!OnUserUpdate(elapsedTime))
@@ -1930,6 +2145,14 @@ namespace olc
                 SDL_Surface* surf = SDL_CreateRGBSurfaceFrom(pDefaultDrawTarget->GetData(), nScreenWidth, nScreenHeight, 32, nScreenWidth * sizeof(Uint32), 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
                 SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surf);
                 SDL_RenderCopy(renderer, texture, NULL, NULL);
+
+                ImGui::Begin("Image");
+                ImGui::Image(texture, ImVec2(100, 100));
+                ImGui::End();
+
+                ImGui::Render();
+                ImGuiSDL::Render(ImGui::GetDrawData());
+
                 SDL_RenderPresent(renderer);
                 SDL_DestroyTexture(texture);
 
@@ -2066,6 +2289,9 @@ namespace olc
                     }
                     
                 }
+
+                ImGui::CreateContext();
+                ImGuiSDL::Initialize(renderer, ScreenWidth() * nPixelWidth, ScreenHeight() * nPixelHeight);
             }
         }
         olc_UpdateViewport();
@@ -2132,11 +2358,15 @@ namespace olc
             }
         }
 
+        ImGuiSDL::Deinitialize();
+
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
 
         renderer = NULL;
         window = NULL;
+
+        ImGui::DestroyContext();
 
         SDL_Quit();
     }
