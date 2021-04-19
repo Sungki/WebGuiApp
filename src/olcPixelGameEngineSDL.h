@@ -1310,15 +1310,35 @@ namespace olc
         return olc::OK;
     }
 
+    void RenderLoopCallback(void* arg)
+    {
+        static_cast<PixelGameEngine*>(arg)->MainLoop();
+    }
+
     olc::rcode PixelGameEngine::Start()
     {
         // Start the thread
         bAtomActive = true;
+#ifdef __EMSCRIPTEN__
+        if (!olc_WindowCreate())
+            bAtomActive = false;
+
+        if (!OnUserCreate())
+            bAtomActive = false;
+
+        timepoint1 = std::chrono::system_clock::now();
+        timepoint2 = std::chrono::system_clock::now();
+
+        emscripten_set_main_loop_arg(&RenderLoopCallback, this, -1, 1);
+//        EmscriptenStart();
+
+        ShutdownSDL();
+#else
         std::thread t{ &PixelGameEngine::EngineThread, this };
 
         // Wait for thread to be exited
         t.join();
-
+#endif
 
         return olc::OK;
     }
@@ -1968,201 +1988,199 @@ namespace olc
 
     void PixelGameEngine::MainLoop()
     {
-        while (bAtomActive)
-        {
-            while (bAtomActive)
-            {
-                timepoint2 = std::chrono::system_clock::now();
-                std::chrono::duration<float> elapsed = timepoint2 - timepoint1;
-                timepoint1 = timepoint2;
+//        while (bAtomActive)
+//        {
+            timepoint2 = std::chrono::system_clock::now();
+            std::chrono::duration<float> elapsed = timepoint2 - timepoint1;
+            timepoint1 = timepoint2;
 
-                float elapsedTime = elapsed.count();
+            float elapsedTime = elapsed.count();
 
 //                ImGuiIO& io = ImGui::GetIO();
 
-                SDL_Event event;
-                while (SDL_PollEvent(&event))
+            SDL_Event event;
+            while (SDL_PollEvent(&event))
+            {
+                switch (event.type)
                 {
-                    switch (event.type)
+                case SDL_QUIT:
+                    bAtomActive = false;
+                    break;
+                case SDL_KEYDOWN:
+                    pKeyNewState[mapKeys[event.key.keysym.scancode]] = true;
+                    break;
+                case SDL_KEYUP:
+                    pKeyNewState[mapKeys[event.key.keysym.scancode]] = false;
+                    break;
+                case SDL_MOUSEMOTION:
+                    olc_UpdateMouse(event.button.x, event.button.y);
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
+                    switch (event.button.button)
                     {
-                    case SDL_QUIT:
-                        bAtomActive = false;
+                    case SDL_BUTTON_LEFT:
+                        pMouseNewState[0] = true;
                         break;
-                    case SDL_KEYDOWN:
-                        pKeyNewState[mapKeys[event.key.keysym.scancode]] = true;
+                    case SDL_BUTTON_MIDDLE:
+                        pMouseNewState[2] = true;
                         break;
-                    case SDL_KEYUP:
-                        pKeyNewState[mapKeys[event.key.keysym.scancode]] = false;
+                    case SDL_BUTTON_RIGHT:
+                        pMouseNewState[1] = true;
                         break;
-                    case SDL_MOUSEMOTION:
-                        olc_UpdateMouse(event.button.x, event.button.y);
+                    case SDL_BUTTON_X1:
+                        pMouseNewState[3] = true;
                         break;
-                    case SDL_MOUSEBUTTONDOWN:
-                        switch (event.button.button)
-                        {
-                        case SDL_BUTTON_LEFT:
-                            pMouseNewState[0] = true;
-                            break;
-                        case SDL_BUTTON_MIDDLE:
-                            pMouseNewState[2] = true;
-                            break;
-                        case SDL_BUTTON_RIGHT:
-                            pMouseNewState[1] = true;
-                            break;
-                        case SDL_BUTTON_X1:
-                            pMouseNewState[3] = true;
-                            break;
-                        case SDL_BUTTON_X2:
-                            pMouseNewState[4] = true;
-                            break;
-                        }
+                    case SDL_BUTTON_X2:
+                        pMouseNewState[4] = true;
                         break;
-                    case SDL_MOUSEBUTTONUP:
-                        switch (event.button.button)
-                        {
-                        case SDL_BUTTON_LEFT:
-                            pMouseNewState[0] = false;
-                            break;
-                        case SDL_BUTTON_MIDDLE:
-                            pMouseNewState[2] = false;
-                            break;
-                        case SDL_BUTTON_RIGHT:
-                            pMouseNewState[1] = false;
-                            break;
-                        case SDL_BUTTON_X1:
-                            pMouseNewState[3] = false;
-                            break;
-                        case SDL_BUTTON_X2:
-                            pMouseNewState[4] = false;
-                            break;
-                        }
+                    }
+                    break;
+                case SDL_MOUSEBUTTONUP:
+                    switch (event.button.button)
+                    {
+                    case SDL_BUTTON_LEFT:
+                        pMouseNewState[0] = false;
                         break;
-                    case SDL_MOUSEWHEEL:
-                        olc_UpdateMouseWheel(event.wheel.y);
+                    case SDL_BUTTON_MIDDLE:
+                        pMouseNewState[2] = false;
                         break;
-                    case SDL_CONTROLLERDEVICEADDED:
-                        if (controllerSupport && !controller)
-                        {
-                            controller = SDL_GameControllerOpen(0);
-                        }
+                    case SDL_BUTTON_RIGHT:
+                        pMouseNewState[1] = false;
                         break;
-                    case SDL_CONTROLLERDEVICEREMOVED:
-                        if (controllerSupport && controller)
-                        {
-                            SDL_GameControllerClose(controller);
-                            controller = NULL;
-                        }
+                    case SDL_BUTTON_X1:
+                        pMouseNewState[3] = false;
                         break;
-                    case SDL_CONTROLLERAXISMOTION:
-                        pControllerAxisState[mapControllerAxes[event.caxis.axis]] = event.caxis.value;
+                    case SDL_BUTTON_X2:
+                        pMouseNewState[4] = false;
                         break;
-                    case SDL_CONTROLLERBUTTONDOWN:
-                        pControllerButtonNewState[(int)mapControllerButtons[event.cbutton.button]] = true;
-                        break;
-                    case SDL_CONTROLLERBUTTONUP:
-                        pControllerButtonNewState[(int)mapControllerButtons[event.cbutton.button]] = false;
-                        break;
-                    case SDL_WINDOWEVENT:
-                        if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
-                        {
+                    }
+                    break;
+                case SDL_MOUSEWHEEL:
+                    olc_UpdateMouseWheel(event.wheel.y);
+                    break;
+                case SDL_CONTROLLERDEVICEADDED:
+                    if (controllerSupport && !controller)
+                    {
+                        controller = SDL_GameControllerOpen(0);
+                    }
+                    break;
+                case SDL_CONTROLLERDEVICEREMOVED:
+                    if (controllerSupport && controller)
+                    {
+                        SDL_GameControllerClose(controller);
+                        controller = NULL;
+                    }
+                    break;
+                case SDL_CONTROLLERAXISMOTION:
+                    pControllerAxisState[mapControllerAxes[event.caxis.axis]] = event.caxis.value;
+                    break;
+                case SDL_CONTROLLERBUTTONDOWN:
+                    pControllerButtonNewState[(int)mapControllerButtons[event.cbutton.button]] = true;
+                    break;
+                case SDL_CONTROLLERBUTTONUP:
+                    pControllerButtonNewState[(int)mapControllerButtons[event.cbutton.button]] = false;
+                    break;
+                case SDL_WINDOWEVENT:
+                    if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+                    {
 //                            io.DisplaySize.x = static_cast<float>(event.window.data1);
 //                            io.DisplaySize.y = static_cast<float>(event.window.data2);
-                        }
-                        break;
+                    }
+                    break;
+                }
+            }
+
+            for (int i = 0; i < 256; ++i)
+            {
+                pKeyboardState[i].bPressed = false;
+                pKeyboardState[i].bReleased = false;
+                if (pKeyNewState[i] != pKeyOldState[i])
+                {
+                    if (pKeyNewState[i])
+                    {
+                        pKeyboardState[i].bPressed = !pKeyboardState[i].bHeld;
+                        pKeyboardState[i].bHeld = true;
+                    }
+                    else
+                    {
+                        pKeyboardState[i].bReleased = true;
+                        pKeyboardState[i].bHeld = false;
                     }
                 }
 
-                for (int i = 0; i < 256; ++i)
+                pKeyOldState[i] = pKeyNewState[i];
+            }
+
+            for (int i = 0; i < 5; ++i)
+            {
+                pMouseState[i].bPressed = false;
+                pMouseState[i].bReleased = false;
+                if (pMouseNewState[i] != pMouseOldState[i])
                 {
-                    pKeyboardState[i].bPressed = false;
-                    pKeyboardState[i].bReleased = false;
-                    if (pKeyNewState[i] != pKeyOldState[i])
+                    if (pMouseNewState[i])
                     {
-                        if (pKeyNewState[i])
+                        pMouseState[i].bPressed = !pMouseState[i].bHeld;
+                        pMouseState[i].bHeld = true;
+                    }
+                    else
+                    {
+                        pMouseState[i].bReleased = true;
+                        pMouseState[i].bHeld = false;
+                    }
+                }
+
+                pMouseOldState[i] = pMouseNewState[i];
+            }
+
+            if (controllerSupport && controller)
+            {
+                for (int i = 0; i < (int)ControllerButton::NUM_BUTTONS; ++i)
+                {
+                    pControllerButtonState[i].bPressed = false;
+                    pControllerButtonState[i].bReleased = false;
+                    if (pControllerButtonNewState[i] != pControllerButtonOldState[i])
+                    {
+                        if (pControllerButtonNewState[i])
                         {
-                            pKeyboardState[i].bPressed = !pKeyboardState[i].bHeld;
-                            pKeyboardState[i].bHeld = true;
+                            pControllerButtonState[i].bPressed = !pControllerButtonState[i].bHeld;
+                            pControllerButtonState[i].bHeld = true;
                         }
                         else
                         {
-                            pKeyboardState[i].bReleased = true;
-                            pKeyboardState[i].bHeld = false;
+                            pControllerButtonState[i].bReleased = true;
+                            pControllerButtonState[i].bHeld = false;
                         }
                     }
 
-                    pKeyOldState[i] = pKeyNewState[i];
+                    pControllerButtonOldState[i] = pControllerButtonNewState[i];
                 }
-
-                for (int i = 0; i < 5; ++i)
-                {
-                    pMouseState[i].bPressed = false;
-                    pMouseState[i].bReleased = false;
-                    if (pMouseNewState[i] != pMouseOldState[i])
-                    {
-                        if (pMouseNewState[i])
-                        {
-                            pMouseState[i].bPressed = !pMouseState[i].bHeld;
-                            pMouseState[i].bHeld = true;
-                        }
-                        else
-                        {
-                            pMouseState[i].bReleased = true;
-                            pMouseState[i].bHeld = false;
-                        }
-                    }
-
-                    pMouseOldState[i] = pMouseNewState[i];
-                }
-
-                if (controllerSupport && controller)
-                {
-                    for (int i = 0; i < (int)ControllerButton::NUM_BUTTONS; ++i)
-                    {
-                        pControllerButtonState[i].bPressed = false;
-                        pControllerButtonState[i].bReleased = false;
-                        if (pControllerButtonNewState[i] != pControllerButtonOldState[i])
-                        {
-                            if (pControllerButtonNewState[i])
-                            {
-                                pControllerButtonState[i].bPressed = !pControllerButtonState[i].bHeld;
-                                pControllerButtonState[i].bHeld = true;
-                            }
-                            else
-                            {
-                                pControllerButtonState[i].bReleased = true;
-                                pControllerButtonState[i].bHeld = false;
-                            }
-                        }
-
-                        pControllerButtonOldState[i] = pControllerButtonNewState[i];
-                    }
-                }
-                nMousePosX = nMousePosXcache;
-                nMousePosY = nMousePosYcache;
-                nMouseWheelDelta = nMouseWheelDeltaCache;
-                nMouseWheelDeltaCache = 0;
+            }
+            nMousePosX = nMousePosXcache;
+            nMousePosY = nMousePosYcache;
+            nMouseWheelDelta = nMouseWheelDeltaCache;
+            nMouseWheelDeltaCache = 0;
 
 
 /*                int mouseX, mouseY;
-                const int buttons = SDL_GetMouseState(&mouseX, &mouseY);
+            const int buttons = SDL_GetMouseState(&mouseX, &mouseY);
 
-                io.DeltaTime = 1.0f / 60.0f;
-                io.MousePos = ImVec2(static_cast<float>(mouseX), static_cast<float>(mouseY));
-                io.MouseDown[0] = buttons & SDL_BUTTON(SDL_BUTTON_LEFT);
-                io.MouseDown[1] = buttons & SDL_BUTTON(SDL_BUTTON_RIGHT);
+            io.DeltaTime = 1.0f / 60.0f;
+            io.MousePos = ImVec2(static_cast<float>(mouseX), static_cast<float>(mouseY));
+            io.MouseDown[0] = buttons & SDL_BUTTON(SDL_BUTTON_LEFT);
+            io.MouseDown[1] = buttons & SDL_BUTTON(SDL_BUTTON_RIGHT);
 
-                ImGui::NewFrame();
+            ImGui::NewFrame();
 
-                ImGui::ShowDemoWindow();*/
+            ImGui::ShowDemoWindow();*/
 
-                //SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
-                //SDL_RenderClear(renderer);
-                if (!OnUserUpdate(elapsedTime))
-                    bAtomActive = false;
+            //SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+            //SDL_RenderClear(renderer);
+            if (!OnUserUpdate(elapsedTime))
+                bAtomActive = false;
 
-                SDL_Surface* surf = SDL_CreateRGBSurfaceFrom(pDefaultDrawTarget->GetData(), nScreenWidth, nScreenHeight, 32, nScreenWidth * sizeof(Uint32), 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
-                SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surf);
-                SDL_RenderCopy(renderer, texture, NULL, NULL);
+            SDL_Surface* surf = SDL_CreateRGBSurfaceFrom(pDefaultDrawTarget->GetData(), nScreenWidth, nScreenHeight, 32, nScreenWidth * sizeof(Uint32), 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surf);
+            SDL_RenderCopy(renderer, texture, NULL, NULL);
 
 //                ImGui::Begin("Image");
 //                ImGui::Image(texture, ImVec2(100, 100));
@@ -2171,25 +2189,24 @@ namespace olc
 //                ImGui::Render();
 //                ImGuiSDL::Render(ImGui::GetDrawData());
 
-                SDL_RenderPresent(renderer);
-                SDL_DestroyTexture(texture);
+            SDL_RenderPresent(renderer);
+            SDL_DestroyTexture(texture);
 
 
-                fFrameTimer += elapsedTime;
-                ++nFrameCount;
-                if (fFrameTimer >= 1.0f)
-                {
-                    fFrameTimer -= 1.0f;
-                    std::string title = "Game Engin - " + sAppName + " - FPS: " + std::to_string(nFrameCount);
-                    SDL_SetWindowTitle(window, title.c_str());
-
-                    nFrameCount = 0;
-                }
-            }
-            if (!OnUserDestroy())
+            fFrameTimer += elapsedTime;
+            ++nFrameCount;
+            if (fFrameTimer >= 1.0f)
             {
-                bAtomActive = true;
+                fFrameTimer -= 1.0f;
+                std::string title = "Game Engine - " + sAppName + " - FPS: " + std::to_string(nFrameCount);
+                SDL_SetWindowTitle(window, title.c_str());
+
+                nFrameCount = 0;
             }
+//        }
+        if (!OnUserDestroy())
+        {
+            bAtomActive = true;
         }
     }
 
@@ -2204,13 +2221,10 @@ namespace olc
         timepoint1 = std::chrono::system_clock::now();
         timepoint2 = std::chrono::system_clock::now();
 
-#ifdef __EMSCRIPTEN__
-//        EmscriptenStart();
-//        emscripten_set_main_loop(&Platform_Emscripten::Loop, 0, 1);
-//        emscripten_set_main_loop_arg(&RenderLoopCallback, olc::PGEX::pge, 0, 1);
-#else
-        MainLoop();
-#endif
+        while (bAtomActive)
+        {
+            MainLoop();
+        }
 
         ShutdownSDL();
     }

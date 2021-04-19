@@ -166,7 +166,7 @@ class StarField : public olc::PixelGameEngine
 public:
 	StarField() { sAppName = "WebGuiApp";}
 
-/*	const int nStars = 1000;
+	const int nStars = 1000;
 
 	struct sStar
 	{
@@ -177,7 +177,7 @@ public:
 	};
 
 	std::vector<sStar> vStars;
-	olc::vf2d vOrigin;*/
+	olc::vf2d vOrigin;
 
 public:
 	float Random(float a, float b)
@@ -187,7 +187,7 @@ public:
 
 	bool OnUserCreate() override
 	{
-/*		vStars.resize(nStars);
+		vStars.resize(nStars);
 
 		for (auto& star : vStars)
 		{
@@ -198,7 +198,7 @@ public:
 			star.col = olc::PixelF(lum, lum, lum, 1.0f);
 		}
 
-		vOrigin = { float(ScreenWidth() / 2), float(ScreenHeight() / 2) };*/
+		vOrigin = { float(ScreenWidth() / 2), float(ScreenHeight() / 2) };
 
 		return true;
 	}
@@ -206,7 +206,7 @@ public:
 	{
 		Clear(olc::BLACK);
 
-/*		for (auto& star : vStars)
+		for (auto& star : vStars)
 		{
 			star.fDistance += star.fSpeed * fElapsedTime * (star.fDistance / 100.0f);
 			if (star.fDistance > 200.0f)
@@ -219,7 +219,7 @@ public:
 			}
 
 			Draw(olc::vf2d(cos(star.fAngle), sin(star.fAngle)) * star.fDistance + vOrigin, star.col * (star.fDistance / 100.0f));
-		}*/
+		}
 
 		return true;
 	}
