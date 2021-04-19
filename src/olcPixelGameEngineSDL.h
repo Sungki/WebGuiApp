@@ -219,14 +219,12 @@
 #include <vector>
 #include "SDL.h"
 
-#include "imgui.h"
-#include "imgui_sdl.h"
+//#include "imgui.h"
+//#include "imgui_sdl.h"
 
 #undef min
 #undef max
 #undef main
-
-void RenderLoopCallback(void* arg);
 
 namespace olc
 {
@@ -517,6 +515,16 @@ namespace olc
         NUM_AXES
     };
 
+    class PixelGameEngine;
+
+    class Platform
+    {
+    public:
+        static olc::PixelGameEngine* ptrPGE;
+    };
+
+    static std::unique_ptr<Platform> platform;
+
     //=============================================================
 
     class PixelGameEngine
@@ -713,6 +721,9 @@ namespace olc
         void SetEngineSDLSettings(const SDLSettings& settings);
 
         void MainLoop();
+        void EmscriptenStart();
+
+        virtual void olc_ConfigureSystem();
     };
 
     class PGEX
@@ -1272,6 +1283,8 @@ namespace olc
     {
         sAppName = "Undefined";
         olc::PGEX::pge = this;
+
+        olc_ConfigureSystem();
     }
 
     olc::rcode PixelGameEngine::Construct(uint32_t screen_w, uint32_t screen_h, uint32_t pixel_w, uint32_t pixel_h, bool full_screen, bool controller_support)
@@ -1305,6 +1318,8 @@ namespace olc
 
         // Wait for thread to be exited
         t.join();
+
+
         return olc::OK;
     }
 
@@ -1963,7 +1978,7 @@ namespace olc
 
                 float elapsedTime = elapsed.count();
 
-                ImGuiIO& io = ImGui::GetIO();
+//                ImGuiIO& io = ImGui::GetIO();
 
                 SDL_Event event;
                 while (SDL_PollEvent(&event))
@@ -2050,8 +2065,8 @@ namespace olc
                     case SDL_WINDOWEVENT:
                         if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
                         {
-                            io.DisplaySize.x = static_cast<float>(event.window.data1);
-                            io.DisplaySize.y = static_cast<float>(event.window.data2);
+//                            io.DisplaySize.x = static_cast<float>(event.window.data1);
+//                            io.DisplaySize.y = static_cast<float>(event.window.data2);
                         }
                         break;
                     }
@@ -2128,7 +2143,7 @@ namespace olc
                 nMouseWheelDeltaCache = 0;
 
 
-                int mouseX, mouseY;
+/*                int mouseX, mouseY;
                 const int buttons = SDL_GetMouseState(&mouseX, &mouseY);
 
                 io.DeltaTime = 1.0f / 60.0f;
@@ -2138,7 +2153,7 @@ namespace olc
 
                 ImGui::NewFrame();
 
-                ImGui::ShowDemoWindow();
+                ImGui::ShowDemoWindow();*/
 
                 //SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
                 //SDL_RenderClear(renderer);
@@ -2149,12 +2164,12 @@ namespace olc
                 SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surf);
                 SDL_RenderCopy(renderer, texture, NULL, NULL);
 
-                ImGui::Begin("Image");
-                ImGui::Image(texture, ImVec2(100, 100));
-                ImGui::End();
+//                ImGui::Begin("Image");
+//                ImGui::Image(texture, ImVec2(100, 100));
+//                ImGui::End();
 
-                ImGui::Render();
-                ImGuiSDL::Render(ImGui::GetDrawData());
+//                ImGui::Render();
+//                ImGuiSDL::Render(ImGui::GetDrawData());
 
                 SDL_RenderPresent(renderer);
                 SDL_DestroyTexture(texture);
@@ -2190,8 +2205,9 @@ namespace olc
         timepoint2 = std::chrono::system_clock::now();
 
 #ifdef __EMSCRIPTEN__
-//        emscripten_set_main_loop(&PixelGameEngine::MainLoop, 0, 1);
-        emscripten_set_main_loop_arg(&RenderLoopCallback, this, 0, 1);
+//        EmscriptenStart();
+//        emscripten_set_main_loop(&Platform_Emscripten::Loop, 0, 1);
+//        emscripten_set_main_loop_arg(&RenderLoopCallback, olc::PGEX::pge, 0, 1);
 #else
         MainLoop();
 #endif
@@ -2308,8 +2324,8 @@ namespace olc
                     
                 }
 
-                ImGui::CreateContext();
-                ImGuiSDL::Initialize(renderer, ScreenWidth() * nPixelWidth, ScreenHeight() * nPixelHeight);
+//                ImGui::CreateContext();
+//                ImGuiSDL::Initialize(renderer, ScreenWidth() * nPixelWidth, ScreenHeight() * nPixelHeight);
             }
         }
         olc_UpdateViewport();
@@ -2376,7 +2392,7 @@ namespace olc
             }
         }
 
-        ImGuiSDL::Deinitialize();
+//        ImGuiSDL::Deinitialize();
 
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
@@ -2384,7 +2400,7 @@ namespace olc
         renderer = NULL;
         window = NULL;
 
-        ImGui::DestroyContext();
+//        ImGui::DestroyContext();
 
         SDL_Quit();
     }
@@ -2396,14 +2412,34 @@ namespace olc
     std::map<uint16_t, ControllerButton> PixelGameEngine::mapControllerButtons;
     std::map<uint16_t, uint8_t> PixelGameEngine::mapControllerAxes;
     olc::PixelGameEngine* olc::PGEX::pge = nullptr;
+
+    olc::PixelGameEngine* olc::Platform::ptrPGE = nullptr;
+
 #ifdef OLC_DBG_OVERDRAW
     int olc::Sprite::nOverdrawCount = 0;
 #endif
-}
 
-void RenderLoopCallback(void* arg)
-{
-    static_cast<olc::PixelGameEngine*>(arg)->MainLoop();
-}
+    class Platform_Emscripten : public olc::Platform
+    {
+    public:
+        static void Loop()
+        {
+            ptrPGE->MainLoop();
+        }
+    };
 
+    void PixelGameEngine::EmscriptenStart()
+    {
+#ifdef __EMSCRIPTEN__
+        emscripten_set_main_loop(&Platform_Emscripten::Loop, 0, 1);
+#endif
+    }
+
+    void PixelGameEngine::olc_ConfigureSystem()
+    {
+        platform = std::make_unique<olc::Platform_Emscripten>();
+        platform->ptrPGE = this;
+    }
+
+}
 #endif
