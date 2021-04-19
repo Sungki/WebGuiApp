@@ -219,8 +219,8 @@
 #include <vector>
 #include "SDL.h"
 
-//#include "imgui.h"
-//#include "imgui_sdl.h"
+#include "imgui.h"
+#include "imgui_sdl.h"
 
 #undef min
 #undef max
@@ -721,9 +721,8 @@ namespace olc
         void SetEngineSDLSettings(const SDLSettings& settings);
 
         void MainLoop();
-        void EmscriptenStart();
-
-        virtual void olc_ConfigureSystem();
+//        void EmscriptenStart();
+//        virtual void olc_ConfigureSystem();
     };
 
     class PGEX
@@ -1284,7 +1283,7 @@ namespace olc
         sAppName = "Undefined";
         olc::PGEX::pge = this;
 
-        olc_ConfigureSystem();
+//        olc_ConfigureSystem();
     }
 
     olc::rcode PixelGameEngine::Construct(uint32_t screen_w, uint32_t screen_h, uint32_t pixel_w, uint32_t pixel_h, bool full_screen, bool controller_support)
@@ -1330,7 +1329,6 @@ namespace olc
         timepoint2 = std::chrono::system_clock::now();
 
         emscripten_set_main_loop_arg(&RenderLoopCallback, this, -1, 1);
-//        EmscriptenStart();
 
         ShutdownSDL();
 #else
@@ -1996,7 +1994,7 @@ namespace olc
 
             float elapsedTime = elapsed.count();
 
-//                ImGuiIO& io = ImGui::GetIO();
+            ImGuiIO& io = ImGui::GetIO();
 
             SDL_Event event;
             while (SDL_PollEvent(&event))
@@ -2083,8 +2081,8 @@ namespace olc
                 case SDL_WINDOWEVENT:
                     if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
                     {
-//                            io.DisplaySize.x = static_cast<float>(event.window.data1);
-//                            io.DisplaySize.y = static_cast<float>(event.window.data2);
+                            io.DisplaySize.x = static_cast<float>(event.window.data1);
+                            io.DisplaySize.y = static_cast<float>(event.window.data2);
                     }
                     break;
                 }
@@ -2161,7 +2159,7 @@ namespace olc
             nMouseWheelDeltaCache = 0;
 
 
-/*                int mouseX, mouseY;
+            int mouseX, mouseY;
             const int buttons = SDL_GetMouseState(&mouseX, &mouseY);
 
             io.DeltaTime = 1.0f / 60.0f;
@@ -2171,7 +2169,7 @@ namespace olc
 
             ImGui::NewFrame();
 
-            ImGui::ShowDemoWindow();*/
+            ImGui::ShowDemoWindow();
 
             //SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
             //SDL_RenderClear(renderer);
@@ -2182,12 +2180,12 @@ namespace olc
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surf);
             SDL_RenderCopy(renderer, texture, NULL, NULL);
 
-//                ImGui::Begin("Image");
-//                ImGui::Image(texture, ImVec2(100, 100));
-//                ImGui::End();
+            ImGui::Begin("Image");
+            ImGui::Image(texture, ImVec2(100, 100));
+            ImGui::End();
 
-//                ImGui::Render();
-//                ImGuiSDL::Render(ImGui::GetDrawData());
+            ImGui::Render();
+            ImGuiSDL::Render(ImGui::GetDrawData());
 
             SDL_RenderPresent(renderer);
             SDL_DestroyTexture(texture);
@@ -2338,8 +2336,8 @@ namespace olc
                     
                 }
 
-//                ImGui::CreateContext();
-//                ImGuiSDL::Initialize(renderer, ScreenWidth() * nPixelWidth, ScreenHeight() * nPixelHeight);
+                ImGui::CreateContext();
+                ImGuiSDL::Initialize(renderer, ScreenWidth() * nPixelWidth, ScreenHeight() * nPixelHeight);
             }
         }
         olc_UpdateViewport();
@@ -2406,7 +2404,7 @@ namespace olc
             }
         }
 
-//        ImGuiSDL::Deinitialize();
+        ImGuiSDL::Deinitialize();
 
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
@@ -2414,7 +2412,7 @@ namespace olc
         renderer = NULL;
         window = NULL;
 
-//        ImGui::DestroyContext();
+        ImGui::DestroyContext();
 
         SDL_Quit();
     }
@@ -2433,7 +2431,7 @@ namespace olc
     int olc::Sprite::nOverdrawCount = 0;
 #endif
 
-    class Platform_Emscripten : public olc::Platform
+/*    class Platform_Emscripten : public olc::Platform
     {
     public:
         static void Loop()
@@ -2453,7 +2451,6 @@ namespace olc
     {
         platform = std::make_unique<olc::Platform_Emscripten>();
         platform->ptrPGE = this;
-    }
-
+    }*/
 }
 #endif
