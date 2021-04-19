@@ -201,6 +201,12 @@
     #include <png.h>
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include "emscripten.h"
+#endif
+
+#include <cmath>
+#include <cstdint>
 #include <iostream>
 #include <string>
 #include <thread>
@@ -219,6 +225,8 @@
 #undef min
 #undef max
 #undef main
+
+void RenderLoopCallback(void* arg);
 
 namespace olc
 {
@@ -688,6 +696,9 @@ namespace olc
         // Shut Down SDL cleanly
         void ShutdownSDL();
     
+        std::chrono::system_clock::time_point timepoint1;
+        std::chrono::system_clock::time_point timepoint2;
+
     public:
     	struct SDLSettings
     	{
@@ -700,7 +711,8 @@ namespace olc
     	};
     
         void SetEngineSDLSettings(const SDLSettings& settings);
-    
+
+        void MainLoop();
     };
 
     class PGEX
@@ -1939,17 +1951,8 @@ namespace olc
             nMousePosYcache = 0;
     }
 
-    void PixelGameEngine::EngineThread()
+    void PixelGameEngine::MainLoop()
     {
-        if (!olc_WindowCreate())
-            bAtomActive = false;
-
-        if (!OnUserCreate())
-            bAtomActive = false;
-
-        auto timepoint1 = std::chrono::system_clock::now();
-        auto timepoint2 = std::chrono::system_clock::now();
-
         while (bAtomActive)
         {
             while (bAtomActive)
@@ -2161,12 +2164,8 @@ namespace olc
                 ++nFrameCount;
                 if (fFrameTimer >= 1.0f)
                 {
-
-
                     fFrameTimer -= 1.0f;
-
-
-                    std::string title = "OneLoneCoder.com - Pixel Game Engine SDL - " + sAppName + " - FPS: " + std::to_string(nFrameCount);
+                    std::string title = "Game Engin - " + sAppName + " - FPS: " + std::to_string(nFrameCount);
                     SDL_SetWindowTitle(window, title.c_str());
 
                     nFrameCount = 0;
@@ -2177,6 +2176,25 @@ namespace olc
                 bAtomActive = true;
             }
         }
+    }
+
+    void PixelGameEngine::EngineThread()
+    {
+        if (!olc_WindowCreate())
+            bAtomActive = false;
+
+        if (!OnUserCreate())
+            bAtomActive = false;
+
+        timepoint1 = std::chrono::system_clock::now();
+        timepoint2 = std::chrono::system_clock::now();
+
+#ifdef __EMSCRIPTEN__
+//        emscripten_set_main_loop(&PixelGameEngine::MainLoop, 0, 1);
+        emscripten_set_main_loop_arg(&RenderLoopCallback, this, 0, 1);
+#else
+        MainLoop();
+#endif
 
         ShutdownSDL();
     }
@@ -2382,4 +2400,10 @@ namespace olc
     int olc::Sprite::nOverdrawCount = 0;
 #endif
 }
+
+void RenderLoopCallback(void* arg)
+{
+    static_cast<olc::PixelGameEngine*>(arg)->MainLoop();
+}
+
 #endif
