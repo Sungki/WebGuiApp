@@ -158,6 +158,8 @@ int main()
 	return 0;
 }*/
 
+#include <string>
+
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngineSDL.h"
 
@@ -165,6 +167,18 @@ class StarField : public olc::PixelGameEngine
 {
 public:
 	StarField() { sAppName = "WebGuiApp";}
+
+private:
+	int nMapWidth = 16;				// World Dimensions
+	int nMapHeight = 16;
+
+	float fPlayerX = 14.7f;			// Player Start Position
+	float fPlayerY = 5.09f;
+	float fPlayerA = 0.0f;			// Player Start Rotation
+	float fFOV = 3.14159f / 4.0f;	// Field of View
+	float fDepth = 16.0f;			// Maximum rendering distance
+	float fSpeed = 5.0f;			// Walking Speed
+	std::wstring map;
 
 	const int nStars = 1000;
 
@@ -200,11 +214,94 @@ public:
 
 		vOrigin = { float(ScreenWidth() / 2), float(ScreenHeight() / 2) };
 
+		map += L"#########.......";
+		map += L"#...............";
+		map += L"#.......########";
+		map += L"#..............#";
+		map += L"#......##......#";
+		map += L"#......##......#";
+		map += L"#..............#";
+		map += L"###............#";
+		map += L"##.............#";
+		map += L"#......####..###";
+		map += L"#......#.......#";
+		map += L"#......#.......#";
+		map += L"#..............#";
+		map += L"#......#########";
+		map += L"#..............#";
+		map += L"################";
+
 		return true;
 	}
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-		Clear(olc::BLACK);
+		if (GetAsyncKeyState((unsigned short)'A') & 0x8000)
+			fPlayerA -= (fSpeed * 0.75f) * fElapsedTime;
+
+		if (GetAsyncKeyState((unsigned short)'D') & 0x8000)
+			fPlayerA += (fSpeed * 0.75f) * fElapsedTime;
+
+		if (GetAsyncKeyState((unsigned short)'W') & 0x8000)
+		{
+			fPlayerX += sinf(fPlayerA) * fSpeed * fElapsedTime;;
+			fPlayerY += cosf(fPlayerA) * fSpeed * fElapsedTime;;
+		}
+
+		if (GetAsyncKeyState((unsigned short)'S') & 0x8000)
+		{
+			fPlayerX -= sinf(fPlayerA) * fSpeed * fElapsedTime;;
+			fPlayerY -= cosf(fPlayerA) * fSpeed * fElapsedTime;;
+		}
+
+		for (int x = 0; x < ScreenWidth(); x++)
+		{
+			float fRayAngle = (fPlayerA - fFOV / 2.0f) + ((float)x / (float)ScreenWidth()) * fFOV;
+
+			float fStepSize = 0.1f;		  // Increment size for ray casting, decrease to increase										
+			float fDistanceToWall = 0.0f; //                                      resolution
+
+			bool bHitWall = false;		// Set when ray hits wall block
+
+			float fEyeX = sinf(fRayAngle); // Unit vector for ray in player space
+			float fEyeY = cosf(fRayAngle);
+
+			while (!bHitWall && fDistanceToWall < fDepth)
+			{
+				fDistanceToWall += fStepSize;
+				int nTestX = (int)(fPlayerX + fEyeX * fDistanceToWall);
+				int nTestY = (int)(fPlayerY + fEyeY * fDistanceToWall);
+
+				if (nTestX < 0 || nTestX >= nMapWidth || nTestY < 0 || nTestY >= nMapHeight)
+				{
+					bHitWall = true;			// Just set distance to maximum depth
+					fDistanceToWall = fDepth;
+				}
+				else
+				{
+					if (map.c_str()[nTestX * nMapWidth + nTestY] == '#')
+					{
+						bHitWall = true;
+					}
+				}
+			}
+
+			int nCeiling = (float)(ScreenHeight() / 2.0) - ScreenHeight() / ((float)fDistanceToWall);
+			int nFloor = ScreenHeight() - nCeiling;
+
+			for (int y = 0; y < ScreenHeight(); y++)
+			{
+				if (y <= nCeiling)
+					Draw(x, y, olc::BLACK);
+				else if (y > nCeiling && y <= nFloor)
+					Draw(x, y, olc::CYAN);
+				else
+				{
+					Draw(x, y, olc::DARK_GREY);
+				}
+			}
+		}
+
+//		Clear(olc::BLACK);
 
 		for (auto& star : vStars)
 		{
