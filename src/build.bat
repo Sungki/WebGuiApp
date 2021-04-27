@@ -1,0 +1,1 @@
+emcc imgui.cpp imgui_demo.cpp imgui_draw.cpp imgui_sdl.cpp imgui_tables.cpp imgui_widgets.cpp main.cpp -s USE_SDL=2 -s LEGACY_GL_EMULATION=1 -o pge.html

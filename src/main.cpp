@@ -235,19 +235,19 @@ public:
 	}
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-		if (GetAsyncKeyState((unsigned short)'A') & 0x8000)
+		if (GetKey(olc::Key::A).bHeld)
 			fPlayerA -= (fSpeed * 0.75f) * fElapsedTime;
 
-		if (GetAsyncKeyState((unsigned short)'D') & 0x8000)
+		if (GetKey(olc::Key::D).bHeld)
 			fPlayerA += (fSpeed * 0.75f) * fElapsedTime;
 
-		if (GetAsyncKeyState((unsigned short)'W') & 0x8000)
+		if (GetKey(olc::Key::W).bHeld)
 		{
 			fPlayerX += sinf(fPlayerA) * fSpeed * fElapsedTime;;
 			fPlayerY += cosf(fPlayerA) * fSpeed * fElapsedTime;;
 		}
 
-		if (GetAsyncKeyState((unsigned short)'S') & 0x8000)
+		if (GetKey(olc::Key::S).bHeld)
 		{
 			fPlayerX -= sinf(fPlayerA) * fSpeed * fElapsedTime;;
 			fPlayerY -= cosf(fPlayerA) * fSpeed * fElapsedTime;;
