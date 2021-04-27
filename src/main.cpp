@@ -253,6 +253,23 @@ public:
 			fPlayerY -= cosf(fPlayerA) * fSpeed * fElapsedTime;;
 		}
 
+		Clear(olc::BLACK);
+
+		for (auto& star : vStars)
+		{
+			star.fDistance += star.fSpeed * fElapsedTime * (star.fDistance / 100.0f);
+			if (star.fDistance > 200.0f)
+			{
+				star.fAngle = Random(0.0f, 2.0f * 3.1459f);
+				star.fSpeed = Random(10.0f, 100.0f);
+				star.fDistance = Random(1.0f, 100.0f);
+				float lum = Random(0.3f, 1.0f);
+				star.col = olc::PixelF(lum, lum, lum, 1.0f);
+			}
+
+			Draw(olc::vf2d(cos(star.fAngle), sin(star.fAngle)) * star.fDistance + vOrigin, star.col * (star.fDistance / 100.0f));
+		}
+
 		for (int x = 0; x < ScreenWidth(); x++)
 		{
 			float fRayAngle = (fPlayerA - fFOV / 2.0f) + ((float)x / (float)ScreenWidth()) * fFOV;
@@ -290,32 +307,15 @@ public:
 
 			for (int y = 0; y < ScreenHeight(); y++)
 			{
-				if (y <= nCeiling)
-					Draw(x, y, olc::BLACK);
-				else if (y > nCeiling && y <= nFloor)
+//				if (y <= nCeiling)
+//					Draw(x, y, olc::BLACK);
+				if (y > nCeiling && y <= nFloor)
 					Draw(x, y, olc::CYAN);
-				else
-				{
-					Draw(x, y, olc::DARK_GREY);
-				}
+//				else
+//				{
+//					Draw(x, y, olc::DARK_GREY);
+//				}
 			}
-		}
-
-//		Clear(olc::BLACK);
-
-		for (auto& star : vStars)
-		{
-			star.fDistance += star.fSpeed * fElapsedTime * (star.fDistance / 100.0f);
-			if (star.fDistance > 200.0f)
-			{
-				star.fAngle = Random(0.0f, 2.0f * 3.1459f);
-				star.fSpeed = Random(10.0f, 100.0f);
-				star.fDistance = Random(1.0f, 100.0f);
-				float lum = Random(0.3f, 1.0f);
-				star.col = olc::PixelF(lum, lum, lum, 1.0f);
-			}
-
-			Draw(olc::vf2d(cos(star.fAngle), sin(star.fAngle)) * star.fDistance + vOrigin, star.col * (star.fDistance / 100.0f));
 		}
 
 		return true;
