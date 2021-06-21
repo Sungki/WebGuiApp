@@ -310,7 +310,7 @@ public:
 //				if (y <= nCeiling)
 //					Draw(x, y, olc::BLACK);
 				if (y > nCeiling && y <= nFloor)
-					Draw(x, y, olc::CYAN);
+					Draw(x, y, olc::DARK_GREEN);
 //				else
 //				{
 //					Draw(x, y, olc::DARK_GREY);
