@@ -156,7 +156,7 @@ int main()
 #endif
 
 	return 0;
-}*/
+}
 
 #include <string>
 
@@ -320,12 +320,61 @@ public:
 
 		return true;
 	}
+};*/
+
+#define OLC_PGE_APPLICATION
+#include "olcPixelGameEngineSDL.h"
+
+#include "Config.h"
+#include "Emulator.h"
+
+class GameBoyEmulator : public olc::PixelGameEngine
+{
+public:
+	GameBoyEmulator() { sAppName = "WebGuiApp"; }
+//	GameBoy gb;
+
+	Emulator* m_Emulator;
+
+public:
+	bool OnUserCreate() override
+	{
+		m_Emulator = new Emulator();
+//		m_Emulator->LoadRom("CastlevaniaAdventure.gb");
+//		m_Emulator->InitGame(DoRender);
+
+//		gb.Initialize();
+
+		return true;
+	}
+	bool OnUserUpdate(float fElapsedTime) override
+	{
+//		gb.StartEmulation();
+
+		return true;
+	}
+
+	bool OnUserDestroy() override
+	{
+		delete m_Emulator;
+
+		return true;
+	}
 };
 
 int main()
 {
-	StarField demo;
-	if (demo.Construct(256, 240, 4, 4))
+//	StarField demo;
+//	if (demo.Construct(256, 240, 4, 4))
+//		demo.Start();
+
+//	GameBoy* gb = GameBoy::CreateInstance();
+//	gb->StartEmulation();
+//	delete gb;
+
+	GameBoyEmulator demo;
+	if (demo.Construct(160, 144, 4, 4))
 		demo.Start();
+
 	return 0;
 }

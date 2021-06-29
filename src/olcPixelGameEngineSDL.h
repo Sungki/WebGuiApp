@@ -1994,7 +1994,7 @@ namespace olc
 
             float elapsedTime = elapsed.count();
 
-            ImGuiIO& io = ImGui::GetIO();
+//            ImGuiIO& io = ImGui::GetIO();
 
             SDL_Event event;
             while (SDL_PollEvent(&event))
@@ -2081,8 +2081,8 @@ namespace olc
                 case SDL_WINDOWEVENT:
                     if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
                     {
-                            io.DisplaySize.x = static_cast<float>(event.window.data1);
-                            io.DisplaySize.y = static_cast<float>(event.window.data2);
+//                            io.DisplaySize.x = static_cast<float>(event.window.data1);
+//                            io.DisplaySize.y = static_cast<float>(event.window.data2);
                     }
                     break;
                 }
@@ -2162,14 +2162,14 @@ namespace olc
             int mouseX, mouseY;
             const int buttons = SDL_GetMouseState(&mouseX, &mouseY);
 
-            io.DeltaTime = 1.0f / 60.0f;
+/*            io.DeltaTime = 1.0f / 60.0f;
             io.MousePos = ImVec2(static_cast<float>(mouseX), static_cast<float>(mouseY));
             io.MouseDown[0] = buttons & SDL_BUTTON(SDL_BUTTON_LEFT);
             io.MouseDown[1] = buttons & SDL_BUTTON(SDL_BUTTON_RIGHT);
 
             ImGui::NewFrame();
 
-            ImGui::ShowDemoWindow();
+            ImGui::ShowDemoWindow();*/
 
             //SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
             //SDL_RenderClear(renderer);
@@ -2180,12 +2180,12 @@ namespace olc
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surf);
             SDL_RenderCopy(renderer, texture, NULL, NULL);
 
-            ImGui::Begin("Image");
-            ImGui::Image(texture, ImVec2(100, 100));
-            ImGui::End();
+//            ImGui::Begin("Image");
+//            ImGui::Image(texture, ImVec2(100, 100));
+//            ImGui::End();
 
-            ImGui::Render();
-            ImGuiSDL::Render(ImGui::GetDrawData());
+  //          ImGui::Render();
+//            ImGuiSDL::Render(ImGui::GetDrawData());
 
             SDL_RenderPresent(renderer);
             SDL_DestroyTexture(texture);

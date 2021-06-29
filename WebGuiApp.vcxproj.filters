@@ -36,10 +36,10 @@
     <ClCompile Include="src\imgui_demo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="olc6502.cpp">
+    <ClCompile Include="src\olc6502.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Bus.cpp">
+    <ClCompile Include="src\Bus.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -65,10 +65,10 @@
     <ClInclude Include="src\olcPixelGameEngineSDL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="olc6502.h">
+    <ClInclude Include="src\olc6502.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Bus.h">
+    <ClInclude Include="src\Bus.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
