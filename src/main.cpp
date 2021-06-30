@@ -344,7 +344,7 @@ public:
 	bool OnUserCreate() override
 	{
 		m_Emulator = new Emulator();
-		m_Emulator->LoadRom("t.gb");
+		m_Emulator->LoadRom("t.gat");
 		m_Emulator->ResetCPU();
 
 		bRender = false;

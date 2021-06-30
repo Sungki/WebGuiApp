@@ -59,7 +59,7 @@ bool Emulator::LoadRom(const std::string& romName)
 
 	memcpy(&m_Rom[0x0], &m_GameBank[0], 0x8000) ; // this is read only and never changes
 
-//	in = fopen("t.txt", "wb");
+//	in = fopen("t.gat", "wb");
 //	fwrite(&m_Rom, 1, sizeof(m_Rom)/2, in);
 //	fclose(in);
 
