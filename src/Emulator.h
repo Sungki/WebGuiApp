@@ -55,6 +55,7 @@ public:
 		BYTE				m_ScreenData[144][160][3] ;
 
 		bool				ResetCPU();
+		bool* bRender;
 private:
 		enum COLOUR
 		{
