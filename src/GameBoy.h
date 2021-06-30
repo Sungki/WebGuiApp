@@ -25,6 +25,9 @@ public:
 						void					SetKeyReleased				( int key ) ;
 						void					StartEmulation				( ) ;
 						void					HandleInput					() ;
+
+						wchar_t* screen;
+
 private:
 					GameBoy(void);
 

@@ -355,13 +355,25 @@ public:
 
 //		m_Emulator->Update();
 
-		for (int x = 0; x < ScreenWidth(); x++)
+
+		for (int y = 0; y < 144; y++)
+			for (int x = 0; x < 160; x++)
+				switch (gb->screen[y * 144 + x])
+				{
+				case 0x2588: Draw(x, y, olc::WHITE);break;
+				case 0x2593: Draw(x, y, olc::CYAN); break;
+				case 0x2592: Draw(x, y, olc::DARK_BLUE); break;
+				case ' ': Draw(x, y, olc::BLACK); break;
+				default: Draw(x, y, olc::DARK_CYAN);
+				}
+
+/*		for (int x = 0; x < ScreenWidth(); x++)
 		{
 			for (int y = 0; y < ScreenHeight(); y++)
     		{
 					Draw(x, y, olc::DARK_GREEN);
 			}
-		}
+		}*/
 
 		return true;
 	}
@@ -370,7 +382,7 @@ public:
 	{
 //		delete m_Emulator;
 
-		delete gb;
+//		delete gb;
 
 		return true;
 	}

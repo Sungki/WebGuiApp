@@ -16,8 +16,6 @@ static int current = 0 ;
 static int counter = 0 ;
 static bool first = true ;
 
-
-static wchar_t* screen;
 static HANDLE hConsole;
 
 bool keys[8];
