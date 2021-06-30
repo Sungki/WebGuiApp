@@ -28,6 +28,7 @@ Emulator::Emulator(void) :
 	,m_TimeToPause(NULL)
 	,m_TotalOpcodes(0)
 	,m_DoLogging(false)
+	,bRender(false)
 {
 	ResetScreen( );
 }
@@ -108,6 +109,8 @@ bool Emulator::ResetCPU( )
 	m_RegisterDE.reg = 0x00D8 ;
 	m_RegisterHL.reg = 0x014D ;
 	m_StackPointer.reg = 0xFFFE ;
+
+	bRender = false;
 
 	m_Rom[0xFF00] = 0xFF ;
 	m_Rom[0xFF05] = 0x00   ;
@@ -217,6 +220,8 @@ void Emulator::Update( )
 	}
 
 	counter9 += m_CyclesThisUpdate ;
+
+//	bRender = true;
 //	m_RenderFunc() ;
 }
 
@@ -753,6 +758,8 @@ void Emulator::DrawScanLine( )
 	{
 		RenderBackground( lcdControl ) ;
 		RenderSprites( lcdControl ) ;
+
+		bRender = true;
 //		m_RenderFunc() ;
 	}
 
@@ -1232,6 +1239,8 @@ void Emulator::DoTimers( int cycles )
 	// do divider register
 	if (m_DividerVariable >= 256)
 	{
+		bRender = false;
+
 		m_DividerVariable = 0;
 		m_Rom[0xFF04]++ ;
 	}
