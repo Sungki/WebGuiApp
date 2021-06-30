@@ -149,7 +149,6 @@
     <ClCompile Include="src\Emulator.cpp" />
     <ClCompile Include="src\Emulator.i8080Cpu.cpp" />
     <ClCompile Include="src\Emulator.JumpTable.cpp" />
-    <ClCompile Include="src\GameBoy.cpp" />
     <ClCompile Include="src\olc6502.cpp" />
     <ClCompile Include="src\imgui.cpp" />
     <ClCompile Include="src\imgui_demo.cpp" />
@@ -163,7 +162,6 @@
     <ClInclude Include="src\Bus.h" />
     <ClInclude Include="src\Config.h" />
     <ClInclude Include="src\Emulator.h" />
-    <ClInclude Include="src\GameBoy.h" />
     <ClInclude Include="src\olc6502.h" />
     <ClInclude Include="src\imgui.h" />
     <ClInclude Include="src\imgui_internal.h" />

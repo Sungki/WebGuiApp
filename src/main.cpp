@@ -327,14 +327,11 @@ public:
 
 #include "Config.h"
 #include "Emulator.h"
-//#include "Gameboy.h"
 
 class GameBoyEmulator : public olc::PixelGameEngine
 {
 public:
 	GameBoyEmulator() { sAppName = "WebGuiApp"; }
-//	GameBoy* gb;
-
 	Emulator* m_Emulator;
 
 	bool keys[8];
@@ -342,32 +339,15 @@ public:
 public:
 	bool OnUserCreate() override
 	{
-//		gb = GameBoy::CreateInstance();
 		m_Emulator = new Emulator();
 		m_Emulator->LoadRom("tetris.gb");
 		m_Emulator->ResetCPU();
-
-//		gb.Initialize();
 
 		return true;
 	}
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-//		gb->StartEmulation();
-
 		m_Emulator->Update();
-
-
-/*		for (int y = 0; y < 144; y++)
-			for (int x = 0; x < 160; x++)
-				switch (gb->screen[y * 144 + x])
-				{
-				case 0x2588: Draw(x, y, olc::WHITE);break;
-				case 0x2593: Draw(x, y, olc::CYAN); break;
-				case 0x2592: Draw(x, y, olc::DARK_BLUE); break;
-				case ' ': Draw(x, y, olc::BLACK); break;
-				default: Draw(x, y, olc::DARK_CYAN);
-				}*/
 
 		for (int k = 0; k < 8; k++)
 		{
@@ -404,7 +384,6 @@ public:
 		return true;
 	}
 
-
 	void SetKeyPressed(int key)
 	{
 		m_Emulator->KeyPressed(key);
@@ -414,15 +393,6 @@ public:
 	{
 		m_Emulator->KeyReleased(key);
 	}
-
-	bool OnUserDestroy() override
-	{
-//		delete m_Emulator;
-
-//		delete gb;
-
-		return true;
-	}
 };
 
 int main()
@@ -430,10 +400,6 @@ int main()
 //	StarField demo;
 //	if (demo.Construct(256, 240, 4, 4))
 //		demo.Start();
-
-//	GameBoy* gb = GameBoy::CreateInstance();
-//	gb->StartEmulation();
-//	delete gb;
 
 	GameBoyEmulator demo;
 	if (demo.Construct(160, 144, 4, 4))
