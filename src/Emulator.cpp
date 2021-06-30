@@ -28,7 +28,6 @@ Emulator::Emulator(void) :
 	,m_TimeToPause(NULL)
 	,m_TotalOpcodes(0)
 	,m_DoLogging(false)
-	,bRender(false)
 {
 	ResetScreen( );
 }
@@ -109,8 +108,6 @@ bool Emulator::ResetCPU( )
 	m_RegisterDE.reg = 0x00D8 ;
 	m_RegisterHL.reg = 0x014D ;
 	m_StackPointer.reg = 0xFFFE ;
-
-	bRender = false;
 
 	m_Rom[0xFF00] = 0xFF ;
 	m_Rom[0xFF05] = 0x00   ;
@@ -759,7 +756,6 @@ void Emulator::DrawScanLine( )
 		RenderBackground( lcdControl ) ;
 		RenderSprites( lcdControl ) ;
 
-		bRender = true;
 //		m_RenderFunc() ;
 	}
 
@@ -941,8 +937,6 @@ void Emulator::RenderSprites(BYTE lcdControl)
  				BYTE data1 = ReadMemory( (0x8000 + (tileLocation * 16)) + line ) ;
  				BYTE data2 = ReadMemory( (0x8000 + (tileLocation * 16)) + line+1 ) ;
 
-
-
  				for (int tilePixel = 7; tilePixel >= 0; tilePixel--)
  				{
 					int colourbit = tilePixel ;
@@ -967,9 +961,9 @@ void Emulator::RenderSprites(BYTE lcdControl)
 
 					switch(col)
 					{
-					case WHITE:	red = 255; green = 255 ; blue = 255; break ;
-					case LIGHT_GRAY:red = 0xCC; green = 0xCC ; blue = 0xCC; break ;
-					case DARK_GRAY:	red = 0x77; green = 0x77 ; blue = 0x77; break ;
+					case WHITE:	red = 0x11; green = 0x11; blue = 0x11; break ;
+					case LIGHT_GRAY:red = 0x11; green = 0x11; blue = 0x11; break ;
+					case DARK_GRAY:	red = 0x11; green = 0x11; blue = 0x11; break ;
 					}
 
  					int xPix = 0 - tilePixel ;
@@ -1239,8 +1233,6 @@ void Emulator::DoTimers( int cycles )
 	// do divider register
 	if (m_DividerVariable >= 256)
 	{
-		bRender = false;
-
 		m_DividerVariable = 0;
 		m_Rom[0xFF04]++ ;
 	}

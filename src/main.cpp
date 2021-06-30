@@ -340,7 +340,7 @@ public:
 	bool OnUserCreate() override
 	{
 		m_Emulator = new Emulator();
-		m_Emulator->LoadRom("tetris.gb");
+		m_Emulator->LoadRom("c.gb");
 		m_Emulator->ResetCPU();
 
 		return true;
@@ -370,21 +370,26 @@ public:
 			}
 		}
 
-//		if (m_Emulator->bRender)
-		{
-			for (int y = 0; y < 144; y++)
-				for (int x = 0; x < 160; x++)
-					switch (m_Emulator->m_ScreenData[y][x][0])
-					{
-					case 0xFF: Draw(x, y, olc::WHITE); break;
-					case 0xCC: Draw(x, y, olc::CYAN); break;
-					case 0x77: Draw(x, y, olc::DARK_BLUE); break;
-					case 0x00: Draw(x, y, olc::BLACK); break;
-					default: Draw(x, y, olc::DARK_CYAN);
-					}
-		}
+		Render();
 
 		return true;
+	}
+
+	void Render()
+	{
+		for (int y = 0; y < 144; y++)
+			for (int x = 0; x < 160; x++)
+				switch (m_Emulator->m_ScreenData[y][x][0])
+				{
+				case 0xFF: Draw(x, y, olc::WHITE); break;
+				case 0xCC: Draw(x, y, olc::CYAN); break;
+				case 0x77: Draw(x, y, olc::DARK_BLUE); break;
+				case 0x00: Draw(x, y, olc::BLACK); break;
+
+				case 0x11: Draw(x, y, olc::RED); break;
+
+				default: Draw(x, y, olc::DARK_CYAN);
+				}
 	}
 
 	void SetKeyPressed(int key)
