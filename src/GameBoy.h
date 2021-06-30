@@ -27,7 +27,7 @@ public:
 						void					HandleInput					() ;
 
 						wchar_t* screen;
-
+						Emulator* m_Emulator;
 private:
 					GameBoy(void);
 
@@ -37,8 +37,6 @@ private:
 
 	static				GameBoy*				m_Instance ;
 
-
-						Emulator*				m_Emulator ;
 };
 
 #endif

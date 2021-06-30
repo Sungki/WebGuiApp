@@ -356,7 +356,7 @@ public:
 //		m_Emulator->Update();
 
 
-		for (int y = 0; y < 144; y++)
+/*		for (int y = 0; y < 144; y++)
 			for (int x = 0; x < 160; x++)
 				switch (gb->screen[y * 144 + x])
 				{
@@ -364,6 +364,17 @@ public:
 				case 0x2593: Draw(x, y, olc::CYAN); break;
 				case 0x2592: Draw(x, y, olc::DARK_BLUE); break;
 				case ' ': Draw(x, y, olc::BLACK); break;
+				default: Draw(x, y, olc::DARK_CYAN);
+				}*/
+
+		for (int y = 0; y < 144; y++)
+			for (int x = 0; x < 160; x++)
+				switch (gb->m_Emulator->m_ScreenData[y][x][0])
+				{
+				case 0xFF: Draw(x, y, olc::WHITE); break;
+				case 0xCC: Draw(x, y, olc::CYAN); break;
+				case 0x77: Draw(x, y, olc::DARK_BLUE); break;
+				case 0x00: Draw(x, y, olc::BLACK); break;
 				default: Draw(x, y, olc::DARK_CYAN);
 				}
 
