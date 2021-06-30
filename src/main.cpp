@@ -326,24 +326,26 @@ public:
 #include "olcPixelGameEngineSDL.h"
 
 #include "Config.h"
-//#include "Emulator.h"
-#include "Gameboy.h"
+#include "Emulator.h"
+//#include "Gameboy.h"
 
 class GameBoyEmulator : public olc::PixelGameEngine
 {
 public:
 	GameBoyEmulator() { sAppName = "WebGuiApp"; }
-	GameBoy* gb;
+//	GameBoy* gb;
 
-//	Emulator* m_Emulator;
+	Emulator* m_Emulator;
+
+	bool keys[8];
 
 public:
 	bool OnUserCreate() override
 	{
-		gb = GameBoy::CreateInstance();
-//		m_Emulator = new Emulator();
-//		m_Emulator->LoadRom("tetris.gb");
-//		m_Emulator->ResetCPU();
+//		gb = GameBoy::CreateInstance();
+		m_Emulator = new Emulator();
+		m_Emulator->LoadRom("tetris.gb");
+		m_Emulator->ResetCPU();
 
 //		gb.Initialize();
 
@@ -351,9 +353,9 @@ public:
 	}
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-		gb->StartEmulation();
+//		gb->StartEmulation();
 
-//		m_Emulator->Update();
+		m_Emulator->Update();
 
 
 /*		for (int y = 0; y < 144; y++)
@@ -367,9 +369,30 @@ public:
 				default: Draw(x, y, olc::DARK_CYAN);
 				}*/
 
+		for (int k = 0; k < 8; k++)
+		{
+			short nKeyState = GetAsyncKeyState((unsigned char)("\x27\x25\x26\x28ZXAS"[k]));
+			if (nKeyState & 0x8000)
+			{
+				if (!keys[k])
+				{
+					SetKeyPressed(k);
+					keys[k] = true;
+				}
+			}
+			else
+			{
+				if (keys[k])
+				{
+					SetKeyReleased(k);
+					keys[k] = false;
+				}
+			}
+		}
+
 		for (int y = 0; y < 144; y++)
 			for (int x = 0; x < 160; x++)
-				switch (gb->m_Emulator->m_ScreenData[y][x][0])
+				switch (m_Emulator->m_ScreenData[y][x][0])
 				{
 				case 0xFF: Draw(x, y, olc::WHITE); break;
 				case 0xCC: Draw(x, y, olc::CYAN); break;
@@ -378,15 +401,18 @@ public:
 				default: Draw(x, y, olc::DARK_CYAN);
 				}
 
-/*		for (int x = 0; x < ScreenWidth(); x++)
-		{
-			for (int y = 0; y < ScreenHeight(); y++)
-    		{
-					Draw(x, y, olc::DARK_GREEN);
-			}
-		}*/
-
 		return true;
+	}
+
+
+	void SetKeyPressed(int key)
+	{
+		m_Emulator->KeyPressed(key);
+	}
+
+	void SetKeyReleased(int key)
+	{
+		m_Emulator->KeyReleased(key);
 	}
 
 	bool OnUserDestroy() override

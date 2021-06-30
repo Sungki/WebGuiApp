@@ -53,6 +53,8 @@ public:
 
 
 		BYTE				m_ScreenData[144][160][3] ;
+
+		bool				ResetCPU();
 private:
 		enum COLOUR
 		{
@@ -76,8 +78,6 @@ private:
 		COLOUR				GetColour			( BYTE colourNumber, WORD address ) const ;
 		void				DoTimers			( int cycles ) ;
 		void				DoInput				( ) ;
-
-		bool				ResetCPU();
 
 		void				RenderBackground	( BYTE lcdControl ) ;
 		void				RenderSprites		( BYTE lcdControl ) ;
