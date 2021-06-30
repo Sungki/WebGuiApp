@@ -86,7 +86,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>.\include</AdditionalIncludeDirectories>
     </ClCompile>
@@ -146,6 +146,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Bus.cpp" />
+    <ClCompile Include="src\Emulator.cpp" />
+    <ClCompile Include="src\Emulator.i8080Cpu.cpp" />
+    <ClCompile Include="src\Emulator.JumpTable.cpp" />
+    <ClCompile Include="src\GameBoy.cpp" />
     <ClCompile Include="src\olc6502.cpp" />
     <ClCompile Include="src\imgui.cpp" />
     <ClCompile Include="src\imgui_demo.cpp" />
@@ -157,6 +161,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Bus.h" />
+    <ClInclude Include="src\Config.h" />
+    <ClInclude Include="src\Emulator.h" />
+    <ClInclude Include="src\GameBoy.h" />
     <ClInclude Include="src\olc6502.h" />
     <ClInclude Include="src\imgui.h" />
     <ClInclude Include="src\imgui_internal.h" />

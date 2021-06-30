@@ -1,6 +1,6 @@
 #pragma once
-//#ifndef _EMULATOR_H
-//#define _EMULATOR_H
+#ifndef _EMULATOR_H
+#define _EMULATOR_H
 
 typedef unsigned char BYTE ;
 typedef char SIGNED_BYTE ;
@@ -210,4 +210,4 @@ private:
 
 };
 
-//#endif
+#endif

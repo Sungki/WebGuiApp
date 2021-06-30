@@ -2,8 +2,8 @@
 #include "Emulator.h"
 #include "GameBoy.h"
 
-//#include <Windows.h>
-//#include <iostream>
+#include <Windows.h>
+#include <iostream>
 
 static const int windowWidth = 160;
 static const int windowHeight = 144 ;
@@ -19,6 +19,8 @@ static bool first = true ;
 
 static wchar_t* screen;
 static HANDLE hConsole;
+
+bool keys[8];
 
 static void CheckFPS( )
 {
