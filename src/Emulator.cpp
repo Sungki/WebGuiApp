@@ -218,7 +218,7 @@ void Emulator::Update( )
 	}
 
 	counter9 += m_CyclesThisUpdate ;
-	m_RenderFunc() ;
+//	m_RenderFunc() ;
 }
 
 //////////////////////////////////////////////////////////////////

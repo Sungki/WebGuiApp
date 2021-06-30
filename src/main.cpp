@@ -340,8 +340,8 @@ public:
 	bool OnUserCreate() override
 	{
 		m_Emulator = new Emulator();
-//		m_Emulator->LoadRom("CastlevaniaAdventure.gb");
-//		m_Emulator->InitGame(DoRender);
+		m_Emulator->LoadRom("tetris.gb");
+		m_Emulator->ResetCPU();
 
 //		gb.Initialize();
 
@@ -350,6 +350,16 @@ public:
 	bool OnUserUpdate(float fElapsedTime) override
 	{
 //		gb.StartEmulation();
+
+		m_Emulator->Update();
+
+		for (int x = 0; x < ScreenWidth(); x++)
+		{
+			for (int y = 0; y < ScreenHeight(); y++)
+			{
+					Draw(x, y, olc::DARK_GREEN);
+			}
+		}
 
 		return true;
 	}

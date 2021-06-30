@@ -54,6 +54,7 @@ public:
 
 		BYTE				m_ScreenData[144][160][3] ;
 
+		bool				ResetCPU();
 private:
 		enum COLOUR
 		{
@@ -69,7 +70,6 @@ private:
 		void				CreateRamBanks		( int numBanks ) ;
 
 		BYTE				ReadMemory			( WORD memory ) const;
-		bool				ResetCPU			( ) ;
 		void				ResetScreen			( ) ;
 		void				DoInterupts			( ) ;
 		void				DoGraphics			( int cycles ) ;
