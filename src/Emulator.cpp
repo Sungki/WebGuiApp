@@ -218,7 +218,7 @@ void Emulator::Update( )
 	}
 
 	counter9 += m_CyclesThisUpdate ;
-//	m_RenderFunc() ;
+	m_RenderFunc() ;
 }
 
 //////////////////////////////////////////////////////////////////
@@ -754,7 +754,7 @@ void Emulator::DrawScanLine( )
 	{
 		RenderBackground( lcdControl ) ;
 		RenderSprites( lcdControl ) ;
-		//m_RenderFunc() ;
+		m_RenderFunc() ;
 	}
 
 }

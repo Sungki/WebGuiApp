@@ -77,7 +77,7 @@ GameBoy::GameBoy(void) :
 	m_Emulator(NULL)
 {
 	m_Emulator = new Emulator( ) ;
-	m_Emulator->LoadRom("CastlevaniaAdventure.gb") ;
+	m_Emulator->LoadRom("tetris.gb") ;
 	m_Emulator->InitGame( DoRender ) ;
 }
 

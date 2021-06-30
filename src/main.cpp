@@ -326,22 +326,24 @@ public:
 #include "olcPixelGameEngineSDL.h"
 
 #include "Config.h"
-#include "Emulator.h"
+//#include "Emulator.h"
+#include "Gameboy.h"
 
 class GameBoyEmulator : public olc::PixelGameEngine
 {
 public:
 	GameBoyEmulator() { sAppName = "WebGuiApp"; }
-//	GameBoy gb;
+	GameBoy* gb;
 
-	Emulator* m_Emulator;
+//	Emulator* m_Emulator;
 
 public:
 	bool OnUserCreate() override
 	{
-		m_Emulator = new Emulator();
-		m_Emulator->LoadRom("tetris.gb");
-		m_Emulator->ResetCPU();
+		GameBoy* gb = GameBoy::CreateInstance();
+//		m_Emulator = new Emulator();
+//		m_Emulator->LoadRom("tetris.gb");
+//		m_Emulator->ResetCPU();
 
 //		gb.Initialize();
 
@@ -349,14 +351,14 @@ public:
 	}
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-//		gb.StartEmulation();
+		gb->StartEmulation();
 
-		m_Emulator->Update();
+//		m_Emulator->Update();
 
 		for (int x = 0; x < ScreenWidth(); x++)
 		{
 			for (int y = 0; y < ScreenHeight(); y++)
-			{
+    		{
 					Draw(x, y, olc::DARK_GREEN);
 			}
 		}
@@ -366,7 +368,9 @@ public:
 
 	bool OnUserDestroy() override
 	{
-		delete m_Emulator;
+//		delete m_Emulator;
+
+		delete gb;
 
 		return true;
 	}
