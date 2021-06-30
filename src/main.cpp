@@ -340,7 +340,7 @@ public:
 public:
 	bool OnUserCreate() override
 	{
-		GameBoy* gb = GameBoy::CreateInstance();
+		gb = GameBoy::CreateInstance();
 //		m_Emulator = new Emulator();
 //		m_Emulator->LoadRom("tetris.gb");
 //		m_Emulator->ResetCPU();

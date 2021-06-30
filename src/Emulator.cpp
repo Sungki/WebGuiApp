@@ -36,8 +36,8 @@ Emulator::Emulator(void) :
 
 Emulator::~Emulator(void)
 {
-	for (std::vector<BYTE*>::iterator it = m_RamBank.begin(); it != m_RamBank.end(); it++)
-		delete[] (*it) ;
+//	for (std::vector<BYTE*>::iterator it = m_RamBank.begin(); it != m_RamBank.end(); it++)
+//		delete[] (*it) ;
 }
 
 //////////////////////////////////////////////////////////////////
@@ -189,10 +189,10 @@ void Emulator::Update( )
 {
 	hack++ ;
 
-	m_CyclesThisUpdate = 0 ;
-	const int m_TargetCycles = 70221 ;
+//	m_CyclesThisUpdate = 0 ;
+//	const int m_TargetCycles = 70221 ;
 
-	while ((m_CyclesThisUpdate < m_TargetCycles))//||(ReadMemory(0xFF44) < 144))
+/*	while ((m_CyclesThisUpdate < m_TargetCycles))//||(ReadMemory(0xFF44) < 144))
 	{
 		if (m_DebugPause)
  			return ;
@@ -214,11 +214,10 @@ void Emulator::Update( )
 		DoGraphics( cycles ) ;
 		DoInput( ) ;
 		DoInterupts( ) ;
-
 	}
 
 	counter9 += m_CyclesThisUpdate ;
-	m_RenderFunc() ;
+	m_RenderFunc() ;*/
 }
 
 //////////////////////////////////////////////////////////////////

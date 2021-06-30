@@ -17,9 +17,7 @@ class GameBoy
 public:
 	static				GameBoy*				CreateInstance				( ) ;
 	static				GameBoy*				GetSingleton				( ) ;
-
-	GameBoy(void);
-	~GameBoy					(void);
+					~GameBoy(void);
 
 						void					RenderGame					( ) ;
 						bool					Initialize					( ) ;
@@ -28,6 +26,7 @@ public:
 						void					StartEmulation				( ) ;
 						void					HandleInput					() ;
 private:
+					GameBoy(void);
 
 						bool					CreateSDLWindow				( ) ;
 

@@ -183,8 +183,8 @@ void GameBoy::RenderGame( )
 			default: screen[y * windowWidth + x] = 'x';
 			}
 
-	DWORD bw;
-	WriteConsoleOutputCharacter(hConsole, screen, windowWidth * windowHeight, { 0,0 }, &bw);
+//	DWORD bw;
+//	WriteConsoleOutputCharacter(hConsole, screen, windowWidth * windowHeight, { 0,0 }, &bw);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -219,9 +219,9 @@ bool GameBoy::CreateSDLWindow( )
 	SDL_WM_SetCaption( "OpenGL Test", NULL );*/
 
 	screen = new wchar_t[windowWidth * windowHeight];
-	hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
-	SetConsoleActiveScreenBuffer(hConsole);
-	DWORD dwBytesWritten = 0;
+//	hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
+//	SetConsoleActiveScreenBuffer(hConsole);
+//	DWORD dwBytesWritten = 0;
 
 	return true ;
 }
