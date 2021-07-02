@@ -972,9 +972,13 @@ void Emulator::RenderSprites(BYTE lcdControl)
 
 					switch(col)
 					{
-					case WHITE:	red = 255; green = 255; blue = 255; break ;
-					case LIGHT_GRAY:red = 0xCC; green = 0xCC; blue = 0xCC; break ;
-					case DARK_GRAY:	red = 0x77; green = 0x77; blue = 0x77; break ;
+//					case WHITE:	red = 255; green = 255; blue = 255; break ;
+//					case LIGHT_GRAY:red = 0xCC; green = 0xCC; blue = 0xCC; break ;
+//					case DARK_GRAY:	red = 0x77; green = 0x77; blue = 0x77; break ;
+					case WHITE:	red = 0x11; green = 0x11; blue = 0x11; break;
+					case LIGHT_GRAY:red = 0x11; green = 0x11; blue = 0x11; break;
+					case DARK_GRAY:	red = 0x11; green = 0x11; blue = 0x11; break;
+
 					}
 
  					int xPix = 0 - tilePixel ;

@@ -384,7 +384,7 @@ public:
 			Render();
 
 
-//		Draw(player.x, player.y, olc::YELLOW);
+		Draw(player.x, player.y, olc::YELLOW);
 
 		return true;
 	}
@@ -400,11 +400,11 @@ public:
 				case 0x77: Draw(x, y, olc::DARK_BLUE); break;
 				case 0x00: Draw(x, y, olc::BLACK); break;
 
-/*				case 0x11: 
+				case 0x11: 
 					//Draw(x, y, olc::RED); 
 					player.x = x;
 					player.y = y;
-					break;*/
+					break;
 
 				default: Draw(x, y, olc::DARK_CYAN);
 				}
