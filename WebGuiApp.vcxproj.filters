@@ -86,5 +86,8 @@
     <ClInclude Include="src\Emulator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\peanut_gb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

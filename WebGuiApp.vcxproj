@@ -170,6 +170,7 @@
     <ClInclude Include="src\imstb_textedit.h" />
     <ClInclude Include="src\imstb_truetype.h" />
     <ClInclude Include="src\olcPixelGameEngineSDL.h" />
+    <ClInclude Include="src\peanut_gb.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

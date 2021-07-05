@@ -325,37 +325,72 @@ public:
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngineSDL.h"
 
-#include "Config.h"
-#include "Emulator.h"
+//#include "Config.h"
+//#include "Emulator.h"
+
+#include "peanut_gb.h"
+
+uint8_t* read_rom_to_ram(const char* file_name)
+{
+	FILE* rom_file = fopen(file_name, "rb");
+	size_t rom_size;
+	uint8_t* rom = NULL;
+
+	if (rom_file == NULL)
+		return NULL;
+
+	fseek(rom_file, 0, SEEK_END);
+	rom_size = ftell(rom_file);
+	rewind(rom_file);
+	rom = malloc(rom_size);
+
+	if (fread(rom, sizeof(uint8_t), rom_size, rom_file) != rom_size)
+	{
+		free(rom);
+		fclose(rom_file);
+		return NULL;
+	}
+
+	fclose(rom_file);
+	return rom;
+}
 
 class GameBoyEmulator : public olc::PixelGameEngine
 {
 public:
-	GameBoyEmulator() { sAppName = "WebGuiApp"; }
+/*	GameBoyEmulator() { sAppName = "WebGuiApp"; }
 	Emulator* m_Emulator;
 
 	bool keys[8];
 
 	olc::vf2d player;
 
-	bool bRender;
+	bool bRender;*/
 
 public:
 	bool OnUserCreate() override
 	{
-		m_Emulator = new Emulator();
+/*		m_Emulator = new Emulator();
 		m_Emulator->LoadRom("t.gat");
 		m_Emulator->ResetCPU();
 
 		bRender = false;
 
-		m_Emulator->bRender = &bRender;
+		m_Emulator->bRender = &bRender;*/
+
+		if ((priv.rom = read_rom_to_ram(rom_file_name)) == NULL)
+		{
+			printf("%d: %s\n", __LINE__, strerror(errno));
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+
 
 		return true;
 	}
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-		bRender = false;
+/*		bRender = false;
 
 		m_Emulator->Update();
 
@@ -384,12 +419,12 @@ public:
 			Render();
 
 
-		Draw(player.x, player.y, olc::YELLOW);
+		Draw(player.x, player.y, olc::YELLOW);*/
 
 		return true;
 	}
 
-	void Render()
+/*	void Render()
 	{
 		for (int y = 0; y < 144; y++)
 			for (int x = 0; x < 160; x++)
@@ -418,7 +453,7 @@ public:
 	void SetKeyReleased(int key)
 	{
 		m_Emulator->KeyReleased(key);
-	}
+	}*/
 };
 
 int main()
