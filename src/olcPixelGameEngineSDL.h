@@ -538,9 +538,9 @@ namespace olc
 
     public: // Override Interfaces
     // Called once on application startup, use to load your resources
-        virtual bool OnUserCreate();
+        virtual bool OnUserCreate(SDL_Renderer* renderer);
         // Called every frame, and provides you with a time per frame value
-        virtual bool OnUserUpdate(float fElapsedTime, SDL_Texture* texture);
+        virtual bool OnUserUpdate(float fElapsedTime, SDL_Renderer* renderer);
         // Called once on application termination, so you can be a clean coder
         virtual bool OnUserDestroy();
 
@@ -1322,7 +1322,7 @@ namespace olc
         if (!olc_WindowCreate())
             bAtomActive = false;
 
-        if (!OnUserCreate())
+        if (!OnUserCreate(renderer))
             bAtomActive = false;
 
         timepoint1 = std::chrono::system_clock::now();
@@ -1912,11 +1912,11 @@ namespace olc
     // User must override these functions as required. I have not made
     // them abstract because I do need a default behaviour to occur if
     // they are not overwritten
-    bool PixelGameEngine::OnUserCreate()
+    bool PixelGameEngine::OnUserCreate(SDL_Renderer* renderer)
     {
         return false;
     }
-    bool PixelGameEngine::OnUserUpdate(float fElapsedTime, SDL_Texture* texture)
+    bool PixelGameEngine::OnUserUpdate(float fElapsedTime, SDL_Renderer* renderer)
     {
         return false;
     }
@@ -2176,12 +2176,15 @@ namespace olc
 
             SDL_Texture* texture = NULL;
 
-            if (!OnUserUpdate(elapsedTime, texture))
+            if (!OnUserUpdate(elapsedTime, renderer))
                 bAtomActive = false;
 
 //            SDL_Surface* surf = SDL_CreateRGBSurfaceFrom(pDefaultDrawTarget->GetData(), nScreenWidth, nScreenHeight, 32, nScreenWidth * sizeof(Uint32), 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
 //            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surf);
-            SDL_RenderCopy(renderer, texture, NULL, NULL);
+
+
+//            SDL_RenderClear(renderer);
+//            SDL_RenderCopy(renderer, texture, NULL, NULL);
 
 //            ImGui::Begin("Image");
 //            ImGui::Image(texture, ImVec2(100, 100));
@@ -2190,8 +2193,8 @@ namespace olc
   //          ImGui::Render();
 //            ImGuiSDL::Render(ImGui::GetDrawData());
 
-            SDL_RenderPresent(renderer);
-            SDL_DestroyTexture(texture);
+//            SDL_RenderPresent(renderer);
+//            SDL_DestroyTexture(texture);
 
 
             fFrameTimer += elapsedTime;
@@ -2216,7 +2219,7 @@ namespace olc
         if (!olc_WindowCreate())
             bAtomActive = false;
 
-        if (!OnUserCreate())
+        if (!OnUserCreate(renderer))
             bAtomActive = false;
 
         timepoint1 = std::chrono::system_clock::now();

@@ -234,16 +234,16 @@ struct gb_registers_s
 	/* TODO: Sort variables in address order. */
 	/* Timing */
 	uint8_t TIMA, TMA, DIV;
-//	union
-//	{
-//		struct
-//		{
+	union
+	{
+		struct
+		{
 			uint8_t tac_rate : 2;	/* Input clock select */
 			uint8_t tac_enable : 1;	/* Timer enable */
 			uint8_t unused : 5;
-//		};
+		};
 		uint8_t TAC;
-//	};
+	};
 
 	/* LCD */
 	uint8_t LCDC;
@@ -374,8 +374,8 @@ struct gb_s
 	void (*gb_serial_tx)(struct gb_s*, const uint8_t tx);
 	enum gb_serial_rx_ret_e (*gb_serial_rx)(struct gb_s*, uint8_t* rx);
 
-//	struct
-//	{
+	struct
+	{
 		unsigned int	gb_halt : 1;
 		unsigned int	gb_ime : 1;
 		unsigned int	gb_bios_enable : 1;
@@ -388,7 +388,7 @@ struct gb_s
 //		LCD_TRANSFER = 3
 //		}				
 		unsigned int lcd_mode = 2;
-//	};
+	};
 
 	/* Cartridge information:
 	 * Memory Bank Controller (MBC) type. */
@@ -406,8 +406,8 @@ struct gb_s
 	uint8_t enable_cart_ram;
 	/* Cartridge ROM/RAM mode select. */
 	uint8_t cart_mode_select;
-//	union
-//	{
+	union
+	{
 		struct
 		{
 			uint8_t sec;
@@ -418,7 +418,7 @@ struct gb_s
 		} rtc_bits;
 
 		uint8_t cart_rtc[5];
-//	};
+	};
 
 	struct cpu_registers_s cpu_reg;
 	struct gb_registers_s gb_reg;
