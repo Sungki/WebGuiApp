@@ -540,7 +540,7 @@ namespace olc
     // Called once on application startup, use to load your resources
         virtual bool OnUserCreate();
         // Called every frame, and provides you with a time per frame value
-        virtual bool OnUserUpdate(float fElapsedTime);
+        virtual bool OnUserUpdate(float fElapsedTime, SDL_Texture* texture);
         // Called once on application termination, so you can be a clean coder
         virtual bool OnUserDestroy();
 
@@ -1916,7 +1916,7 @@ namespace olc
     {
         return false;
     }
-    bool PixelGameEngine::OnUserUpdate(float fElapsedTime)
+    bool PixelGameEngine::OnUserUpdate(float fElapsedTime, SDL_Texture* texture)
     {
         return false;
     }
@@ -2173,11 +2173,14 @@ namespace olc
 
             //SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
             //SDL_RenderClear(renderer);
-            if (!OnUserUpdate(elapsedTime))
+
+            SDL_Texture* texture = NULL;
+
+            if (!OnUserUpdate(elapsedTime, texture))
                 bAtomActive = false;
 
-            SDL_Surface* surf = SDL_CreateRGBSurfaceFrom(pDefaultDrawTarget->GetData(), nScreenWidth, nScreenHeight, 32, nScreenWidth * sizeof(Uint32), 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
-            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surf);
+//            SDL_Surface* surf = SDL_CreateRGBSurfaceFrom(pDefaultDrawTarget->GetData(), nScreenWidth, nScreenHeight, 32, nScreenWidth * sizeof(Uint32), 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+//            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surf);
             SDL_RenderCopy(renderer, texture, NULL, NULL);
 
 //            ImGui::Begin("Image");

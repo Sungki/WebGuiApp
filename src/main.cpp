@@ -330,6 +330,75 @@ public:
 
 #include "peanut_gb.h"
 
+struct priv_t
+{
+	/* Pointer to allocated memory holding GB file. */
+	uint8_t* rom;
+	/* Pointer to allocated memory holding save file. */
+	uint8_t* cart_ram;
+
+	/* Colour palette for each BG, OBJ0, and OBJ1. */
+	uint16_t selected_palette[3][4];
+	uint16_t fb[LCD_HEIGHT][LCD_WIDTH];
+};
+
+uint8_t gb_rom_read(struct gb_s* gb, const uint_fast32_t addr)
+{
+	const struct priv_t* const p = (priv_t * )gb->direct.priv;
+	return p->rom[addr];
+}
+uint8_t gb_cart_ram_read(struct gb_s* gb, const uint_fast32_t addr)
+{
+	const struct priv_t* const p = (priv_t*)gb->direct.priv;
+	return p->cart_ram[addr];
+}
+void gb_cart_ram_write(struct gb_s* gb, const uint_fast32_t addr,
+	const uint8_t val)
+{
+	const struct priv_t* const p = (priv_t*)gb->direct.priv;
+	p->cart_ram[addr] = val;
+}
+void gb_error(struct gb_s* gb, const enum gb_error_e gb_err, const uint16_t val)
+{
+	struct priv_t* priv = (priv_t*)gb->direct.priv;
+
+	switch (gb_err)
+	{
+	case GB_INVALID_OPCODE:
+		/* We compensate for the post-increment in the __gb_step_cpu
+		 * function. */
+		fprintf(stdout, "Invalid opcode %#04x at PC: %#06x, SP: %#06x\n",
+			val,
+			gb->cpu_reg.pc - 1,
+			gb->cpu_reg.sp);
+		break;
+
+		/* Ignoring non fatal errors. */
+	case GB_INVALID_WRITE:
+	case GB_INVALID_READ:
+		return;
+
+	default:
+		printf("Unknown error");
+		break;
+	}
+
+	fprintf(stderr, "Error. Press q to exit, or any other key to continue.");
+
+	if (getchar() == 'q')
+	{
+		/* Record save file. */
+//		write_cart_ram_file("recovery.sav", &priv->cart_ram,
+//			gb_get_save_size(gb));
+
+		free(priv->rom);
+		free(priv->cart_ram);
+		exit(EXIT_FAILURE);
+	}
+
+	return;
+}
+
 uint8_t* read_rom_to_ram(const char* file_name)
 {
 	FILE* rom_file = fopen(file_name, "rb");
@@ -342,7 +411,7 @@ uint8_t* read_rom_to_ram(const char* file_name)
 	fseek(rom_file, 0, SEEK_END);
 	rom_size = ftell(rom_file);
 	rewind(rom_file);
-	rom = malloc(rom_size);
+	rom =(uint8_t*) malloc(rom_size);
 
 	if (fread(rom, sizeof(uint8_t), rom_size, rom_file) != rom_size)
 	{
@@ -367,6 +436,10 @@ public:
 
 	bool bRender;*/
 
+	struct priv_t priv;
+	struct gb_s gb;
+	enum gb_init_error_e gb_ret;
+
 public:
 	bool OnUserCreate() override
 	{
@@ -378,17 +451,20 @@ public:
 
 		m_Emulator->bRender = &bRender;*/
 
-		if ((priv.rom = read_rom_to_ram(rom_file_name)) == NULL)
+		priv.rom = NULL;
+		priv.cart_ram = NULL;
+
+		if ((priv.rom = read_rom_to_ram("t.gat")) == NULL)
 		{
-			printf("%d: %s\n", __LINE__, strerror(errno));
-			ret = EXIT_FAILURE;
-			goto out;
+			std::cout << "error";
 		}
 
+		gb_ret = gb_init(&gb, &gb_rom_read, &gb_cart_ram_read, &gb_cart_ram_write,
+			&gb_error, &priv);
 
 		return true;
 	}
-	bool OnUserUpdate(float fElapsedTime) override
+	bool OnUserUpdate(float fElapsedTime, SDL_Texture* texture) override
 	{
 /*		bRender = false;
 
@@ -420,6 +496,10 @@ public:
 
 
 		Draw(player.x, player.y, olc::YELLOW);*/
+
+		gb_run_frame(&gb);
+
+		SDL_UpdateTexture(texture, NULL, &priv.fb, LCD_WIDTH * sizeof(uint16_t));
 
 		return true;
 	}
