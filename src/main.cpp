@@ -635,6 +635,7 @@ public:
 			&gb_error, &priv);
 
 
+
 		time_t rawtime;
 		time(&rawtime);
 
@@ -685,6 +686,10 @@ public:
 		Draw(player.x, player.y, olc::YELLOW);*/
 
 		gb_run_frame(&gb);
+
+		gb_tick_rtc(&gb);
+
+
 
 		SDL_UpdateTexture(texture, NULL, &priv.fb, LCD_WIDTH * sizeof(uint16_t));
 		SDL_RenderClear(renderer);
