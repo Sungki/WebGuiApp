@@ -616,6 +616,8 @@ public:
 
 	SDL_Texture* texture;
 
+	SDL_Event event;
+
 public:
 	bool OnUserCreate(SDL_Renderer* renderer) override
 	{
@@ -628,7 +630,7 @@ public:
 		priv.rom = NULL;
 		priv.cart_ram = NULL;
 
-		if ((priv.rom = read_rom_to_ram("tetris.gb")) == NULL)
+		if ((priv.rom = read_rom_to_ram("game.gb")) == NULL)
 		{
 			std::cout << "error";
 		}
@@ -644,8 +646,10 @@ public:
 			SDL_PIXELFORMAT_RGB555,
 			SDL_TEXTUREACCESS_STREAMING,
 			LCD_WIDTH, LCD_HEIGHT);
+
 		return true;
 	}
+
 	bool OnUserUpdate(float fElapsedTime, SDL_Renderer* renderer) override
 	{
 /*		bRender = false;
@@ -679,12 +683,32 @@ public:
 
 		Draw(player.x, player.y, olc::YELLOW);*/
 
+		if (GetKey(olc::Key::ENTER).bPressed) gb.direct.joypad_bits.start = 0;
+		if (GetKey(olc::Key::BACK).bPressed) gb.direct.joypad_bits.select = 0;
+		if (GetKey(olc::Key::Z).bPressed) gb.direct.joypad_bits.a = 0;
+		if (GetKey(olc::Key::X).bPressed) gb.direct.joypad_bits.b = 0;
+		if (GetKey(olc::Key::UP).bPressed) gb.direct.joypad_bits.up = 0;
+		if (GetKey(olc::Key::RIGHT).bPressed) gb.direct.joypad_bits.right = 0;
+		if (GetKey(olc::Key::DOWN).bPressed) gb.direct.joypad_bits.down = 0;
+		if (GetKey(olc::Key::LEFT).bPressed) gb.direct.joypad_bits.left = 0;
+
+		if (GetKey(olc::Key::ENTER).bReleased) gb.direct.joypad_bits.start = 1;
+		if (GetKey(olc::Key::BACK).bReleased) gb.direct.joypad_bits.select = 1;
+		if (GetKey(olc::Key::Z).bReleased) gb.direct.joypad_bits.a = 1;
+		if (GetKey(olc::Key::X).bReleased) gb.direct.joypad_bits.b = 1;
+		if (GetKey(olc::Key::UP).bReleased) gb.direct.joypad_bits.up = 1;
+		if (GetKey(olc::Key::RIGHT).bReleased) gb.direct.joypad_bits.right = 1;
+		if (GetKey(olc::Key::DOWN).bReleased) gb.direct.joypad_bits.down = 1;
+		if (GetKey(olc::Key::LEFT).bReleased) gb.direct.joypad_bits.left = 1;
+
 		gb_run_frame(&gb);
 
 		SDL_UpdateTexture(texture, NULL, &priv.fb, LCD_WIDTH * sizeof(uint16_t));
 		SDL_RenderClear(renderer);
 		SDL_RenderCopy(renderer, texture, NULL, NULL);
 		SDL_RenderPresent(renderer);
+
+		SDL_Delay(10);
 
 		return true;
 	}
@@ -728,7 +752,7 @@ int main()
 //		demo.Start();
 
 	GameBoyEmulator demo;
-	if (demo.Construct(160, 144, 4, 4))
+	if (demo.Construct(160, 144, 5, 5))
 		demo.Start();
 
 	return 0;
