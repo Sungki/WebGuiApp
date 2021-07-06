@@ -328,212 +328,28 @@ public:
 //#include "Config.h"
 //#include "Emulator.h"
 
-//#include "peanut_gb.h"
-
-class GameBoyEmulator : public olc::PixelGameEngine
-{
-public:
-/*	GameBoyEmulator() { sAppName = "WebGuiApp"; }
-	Emulator* m_Emulator;
-
-	bool keys[8];
-
-	olc::vf2d player;
-
-	bool bRender;
-
-	struct priv_t priv;
-	struct gb_s gb;
-	enum gb_init_error_e gb_ret;
-
-	SDL_Texture* texture;*/
-
-public:
-	bool OnUserCreate(SDL_Renderer* renderer) override
-	{
-/*		m_Emulator = new Emulator();
-		m_Emulator->LoadRom("t.gat");
-		m_Emulator->ResetCPU();
-
-		bRender = false;
-
-		m_Emulator->bRender = &bRender;
-
-		priv.rom = NULL;
-		priv.cart_ram = NULL;
-
-		if ((priv.rom = read_rom_to_ram("tetris.gb")) == NULL)
-		{
-			std::cout << "error";
-		}
-
-		gb_ret = gb_init(&gb, &gb_rom_read, &gb_cart_ram_read, &gb_cart_ram_write,
-			&gb_error, &priv);
-
-
-
-		time_t rawtime;
-		time(&rawtime);
-
-		struct tm* timeinfo;
-		timeinfo = localtime(&rawtime);
-		gb_set_rtc(&gb, timeinfo);
-
-		auto_assign_palette(&priv, gb_colour_hash(&gb));
-
-		texture = SDL_CreateTexture(renderer,
-			SDL_PIXELFORMAT_RGB555,
-			SDL_TEXTUREACCESS_STREAMING,
-			LCD_WIDTH, LCD_HEIGHT);*/
-
-		return true;
-	}
-	bool OnUserUpdate(float fElapsedTime, SDL_Renderer* renderer) override
-	{
-/*		bRender = false;
-
-		m_Emulator->Update();
-
-		for (int k = 0; k < 8; k++)
-		{
-			short nKeyState = GetAsyncKeyState((unsigned char)("\x27\x25\x26\x28ZXAS"[k]));
-			if (nKeyState & 0x8000)
-			{
-				if (!keys[k])
-				{
-					SetKeyPressed(k);
-					keys[k] = true;
-				}
-			}
-			else
-			{
-				if (keys[k])
-				{
-					SetKeyReleased(k);
-					keys[k] = false;
-				}
-			}
-		}
-
-		if(bRender)
-			Render();
-
-
-		Draw(player.x, player.y, olc::YELLOW);*/
-
-/*		gb_run_frame(&gb);
-
-		gb_tick_rtc(&gb);
-
-
-
-		SDL_UpdateTexture(texture, NULL, &priv.fb, LCD_WIDTH * sizeof(uint16_t));
-		SDL_RenderClear(renderer);
-		SDL_RenderCopy(renderer, texture, NULL, NULL);
-		SDL_RenderPresent(renderer);*/
-
-		return true;
-	}
-
-/*	void Render()
-	{
-		for (int y = 0; y < 144; y++)
-			for (int x = 0; x < 160; x++)
-				switch (m_Emulator->m_ScreenData[y][x][0])
-				{
-				case 0xFF: Draw(x, y, olc::WHITE); break;
-				case 0xCC: Draw(x, y, olc::CYAN); break;
-				case 0x77: Draw(x, y, olc::DARK_BLUE); break;
-				case 0x00: Draw(x, y, olc::BLACK); break;
-
-				case 0x11: 
-					//Draw(x, y, olc::RED); 
-					player.x = x;
-					player.y = y;
-					break;
-
-				default: Draw(x, y, olc::DARK_CYAN);
-				}
-	}
-
-	void SetKeyPressed(int key)
-	{
-		m_Emulator->KeyPressed(key);
-	}
-
-	void SetKeyReleased(int key)
-	{
-		m_Emulator->KeyReleased(key);
-	}*/
-};
-
-
-
-/*
-int main()
-{
-//	StarField demo;
-//	if (demo.Construct(256, 240, 4, 4))
-//		demo.Start();
-
-	GameBoyEmulator demo;
-	if (demo.Construct(160, 144, 4, 4))
-		demo.Start();
-
-	return 0;
-}*/
-
-/**
- * MIT License
- * Copyright (c) 2018 Mahyar Koshkouei
- *
- * An example of using the peanut_gb.h library. This example application uses
- * SDL2 to draw the screen and get input.
- */
-
-#include <errno.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <SDL.h>
-
 #include "peanut_gb.h"
 
 struct priv_t
 {
-	/* Pointer to allocated memory holding GB file. */
 	uint8_t* rom;
-	/* Pointer to allocated memory holding save file. */
 	uint8_t* cart_ram;
-
-	/* Colour palette for each BG, OBJ0, and OBJ1. */
 	uint16_t selected_palette[3][4];
 	uint16_t fb[LCD_HEIGHT][LCD_WIDTH];
 };
 
-/**
- * Returns a byte from the ROM file at the given address.
- */
 uint8_t gb_rom_read(struct gb_s* gb, const uint_fast32_t addr)
 {
-	const struct priv_t* const p = (priv_t * )gb->direct.priv;
+	const struct priv_t* const p = (priv_t*)gb->direct.priv;
 	return p->rom[addr];
 }
 
-/**
- * Returns a byte from the cartridge RAM at the given address.
- */
 uint8_t gb_cart_ram_read(struct gb_s* gb, const uint_fast32_t addr)
 {
 	const struct priv_t* const p = (priv_t*)gb->direct.priv;
 	return p->cart_ram[addr];
 }
 
-/**
- * Writes a given byte to the cartridge RAM at the given address.
- */
 void gb_cart_ram_write(struct gb_s* gb, const uint_fast32_t addr,
 	const uint8_t val)
 {
@@ -541,9 +357,6 @@ void gb_cart_ram_write(struct gb_s* gb, const uint_fast32_t addr,
 	p->cart_ram[addr] = val;
 }
 
-/**
- * Returns a pointer to the allocated space containing the ROM. Must be freed.
- */
 uint8_t* read_rom_to_ram(const char* file_name)
 {
 	FILE* rom_file = fopen(file_name, "rb");
@@ -556,7 +369,7 @@ uint8_t* read_rom_to_ram(const char* file_name)
 	fseek(rom_file, 0, SEEK_END);
 	rom_size = ftell(rom_file);
 	rewind(rom_file);
-	rom = (uint8_t * )malloc(rom_size);
+	rom = (uint8_t*)malloc(rom_size);
 
 	if (fread(rom, sizeof(uint8_t), rom_size, rom_file) != rom_size)
 	{
@@ -569,80 +382,19 @@ uint8_t* read_rom_to_ram(const char* file_name)
 	return rom;
 }
 
-void read_cart_ram_file(const char* save_file_name, uint8_t** dest,
-	const size_t len)
-{
-	FILE* f;
-
-	/* If save file not required. */
-	if (len == 0)
-	{
-		*dest = NULL;
-		return;
-	}
-
-	/* Allocate enough memory to hold save file. */
-	if ((*dest = (uint8_t *)malloc(len)) == NULL)
-	{
-		printf("%d: %s\n", __LINE__, strerror(errno));
-		exit(EXIT_FAILURE);
-	}
-
-	f = fopen(save_file_name, "rb");
-
-	/* It doesn't matter if the save file doesn't exist. We initialise the
-	 * save memory allocated above. The save file will be created on exit. */
-	if (f == NULL)
-	{
-		memset(*dest, 0xFF, len);
-		return;
-	}
-
-	/* Read save file to allocated memory. */
-	fread(*dest, sizeof(uint8_t), len, f);
-	fclose(f);
-}
-
-void write_cart_ram_file(const char* save_file_name, uint8_t** dest,
-	const size_t len)
-{
-	FILE* f;
-
-	if (len == 0 || *dest == NULL)
-		return;
-
-	if ((f = fopen(save_file_name, "wb")) == NULL)
-	{
-		puts("Unable to open save file.");
-		printf("%d: %s\n", __LINE__, strerror(errno));
-		exit(EXIT_FAILURE);
-	}
-
-	/* Record save file. */
-	fwrite(*dest, sizeof(uint8_t), len, f);
-	fclose(f);
-}
-
-/**
- * Handles an error reported by the emulator. The emulator context may be used
- * to better understand why the error given in gb_err was reported.
- */
 void gb_error(struct gb_s* gb, const enum gb_error_e gb_err, const uint16_t val)
 {
-	struct priv_t* priv = (priv_t * )gb->direct.priv;
+	struct priv_t* priv = (priv_t*)gb->direct.priv;
 
 	switch (gb_err)
 	{
 	case GB_INVALID_OPCODE:
-		/* We compensate for the post-increment in the __gb_step_cpu
-		 * function. */
 		fprintf(stdout, "Invalid opcode %#04x at PC: %#06x, SP: %#06x\n",
 			val,
 			gb->cpu_reg.pc - 1,
 			gb->cpu_reg.sp);
 		break;
 
-		/* Ignoring non fatal errors. */
 	case GB_INVALID_WRITE:
 	case GB_INVALID_READ:
 		return;
@@ -656,9 +408,8 @@ void gb_error(struct gb_s* gb, const enum gb_error_e gb_err, const uint16_t val)
 
 	if (getchar() == 'q')
 	{
-		/* Record save file. */
-		write_cart_ram_file("recovery.sav", &priv->cart_ram,
-			gb_get_save_size(gb));
+//		write_cart_ram_file("recovery.sav", &priv->cart_ram,
+//			gb_get_save_size(gb));
 
 		free(priv->rom);
 		free(priv->cart_ram);
@@ -668,18 +419,12 @@ void gb_error(struct gb_s* gb, const enum gb_error_e gb_err, const uint16_t val)
 	return;
 }
 
-/**
- * Automatically assigns a colour palette to the game using a given game
- * checksum.
- * TODO: Not all checksums are programmed in yet because I'm lazy.
- */
 void auto_assign_palette(struct priv_t* priv, uint8_t game_checksum)
 {
 	size_t palette_bytes = 3 * 4 * sizeof(uint16_t);
 
 	switch (game_checksum)
 	{
-		/* Balloon Kid and Tetris Blast */
 	case 0x71:
 	case 0xFF:
 	{
@@ -843,189 +588,10 @@ void auto_assign_palette(struct priv_t* priv, uint8_t game_checksum)
 	}
 }
 
-/**
- * Assigns a palette. This is used to allow the user to manually select a
- * different colour palette if one was not found automatically, or if the user
- * prefers a different colour palette.
- * selection is the requestion colour palette. This should be a maximum of
- * NUMBER_OF_PALETTES - 1. The default greyscale palette is selected otherwise.
- */
-void manual_assign_palette(struct priv_t* priv, uint8_t selection)
-{
-#define NUMBER_OF_PALETTES 12
-	size_t palette_bytes = 3 * 4 * sizeof(uint16_t);
-
-	switch (selection)
-	{
-		/* 0x05 (Right) */
-	case 0:
-	{
-		const uint16_t palette[3][4] =
-		{
-			{ 0x7FFF, 0x2BE0, 0x7D00, 0x0000 },
-			{ 0x7FFF, 0x2BE0, 0x7D00, 0x0000 },
-			{ 0x7FFF, 0x2BE0, 0x7D00, 0x0000 }
-		};
-		memcpy(priv->selected_palette, palette, palette_bytes);
-		break;
-	}
-
-	/* 0x07 (A + Down) */
-	case 1:
-	{
-		const uint16_t palette[3][4] =
-		{
-			{ 0x7FFF, 0x7FE0, 0x7C00, 0x0000 },
-			{ 0x7FFF, 0x7FE0, 0x7C00, 0x0000 },
-			{ 0x7FFF, 0x7FE0, 0x7C00, 0x0000 }
-		};
-		memcpy(priv->selected_palette, palette, palette_bytes);
-		break;
-	}
-
-	/* 0x12 (Up) */
-	case 2:
-	{
-		const uint16_t palette[3][4] =
-		{
-			{ 0x7FFF, 0x7EAC, 0x40C0, 0x0000 },
-			{ 0x7FFF, 0x7EAC, 0x40C0, 0x0000 },
-			{ 0x7FFF, 0x7EAC, 0x40C0, 0x0000 }
-		};
-		memcpy(priv->selected_palette, palette, palette_bytes);
-		break;
-	}
-
-	/* 0x13 (B + Right) */
-	case 3:
-	{
-		const uint16_t palette[3][4] =
-		{
-			{ 0x0000, 0x0210, 0x7F60, 0x7FFF },
-			{ 0x0000, 0x0210, 0x7F60, 0x7FFF },
-			{ 0x0000, 0x0210, 0x7F60, 0x7FFF }
-		};
-		memcpy(priv->selected_palette, palette, palette_bytes);
-		break;
-	}
-
-	/* 0x16 (B + Left, DMG Palette) */
-	default:
-	case 4:
-	{
-		const uint16_t palette[3][4] =
-		{
-			{ 0x7FFF, 0x5294, 0x294A, 0x0000 },
-			{ 0x7FFF, 0x5294, 0x294A, 0x0000 },
-			{ 0x7FFF, 0x5294, 0x294A, 0x0000 }
-		};
-		memcpy(priv->selected_palette, palette, palette_bytes);
-		break;
-	}
-
-	/* 0x17 (Down) */
-	case 5:
-	{
-		const uint16_t palette[3][4] =
-		{
-			{ 0x7FF4, 0x7E52, 0x4A5F, 0x0000 },
-			{ 0x7FF4, 0x7E52, 0x4A5F, 0x0000 },
-			{ 0x7FF4, 0x7E52, 0x4A5F, 0x0000 }
-		};
-		memcpy(priv->selected_palette, palette, palette_bytes);
-		break;
-	}
-
-	/* 0x19 (B + Up) */
-	case 6:
-	{
-		const uint16_t palette[3][4] =
-		{
-			{ 0x7FFF, 0x7EAC, 0x40C0, 0x0000 },
-			{ 0x7FFF, 0x7EAC, 0x40C0, 0x0000 },
-			{ 0x7F98, 0x6670, 0x41A5, 0x2CC1 }
-		};
-		memcpy(priv->selected_palette, palette, palette_bytes);
-		break;
-	}
-
-	/* 0x1C (A + Right) */
-	case 7:
-	{
-		const uint16_t palette[3][4] =
-		{
-			{ 0x7FFF, 0x7E10, 0x48E7, 0x0000 },
-			{ 0x7FFF, 0x7E10, 0x48E7, 0x0000 },
-			{ 0x7FFF, 0x3FE6, 0x0198, 0x0000 }
-		};
-		memcpy(priv->selected_palette, palette, palette_bytes);
-		break;
-	}
-
-	/* 0x0D (A + Left) */
-	case 8:
-	{
-		const uint16_t palette[3][4] =
-		{
-			{ 0x7FFF, 0x7E10, 0x48E7, 0x0000 },
-			{ 0x7FFF, 0x7EAC, 0x40C0, 0x0000 },
-			{ 0x7FFF, 0x463B, 0x2951, 0x0000 }
-		};
-		memcpy(priv->selected_palette, palette, palette_bytes);
-		break;
-	}
-
-	/* 0x10 (A + Up) */
-	case 9:
-	{
-		const uint16_t palette[3][4] =
-		{
-			{ 0x7FFF, 0x3FE6, 0x0200, 0x0000 },
-			{ 0x7FFF, 0x329F, 0x001F, 0x0000 },
-			{ 0x7FFF, 0x7E10, 0x48E7, 0x0000 }
-		};
-		memcpy(priv->selected_palette, palette, palette_bytes);
-		break;
-	}
-
-	/* 0x18 (Left) */
-	case 10:
-	{
-		const uint16_t palette[3][4] =
-		{
-			{ 0x7FFF, 0x7E10, 0x48E7, 0x0000 },
-			{ 0x7FFF, 0x3FE6, 0x0200, 0x0000 },
-			{ 0x7FFF, 0x329F, 0x001F, 0x0000 }
-		};
-		memcpy(priv->selected_palette, palette, palette_bytes);
-		break;
-	}
-
-	/* 0x1A (B + Down) */
-	case 11:
-	{
-		const uint16_t palette[3][4] =
-		{
-			{ 0x7FFF, 0x329F, 0x001F, 0x0000 },
-			{ 0x7FFF, 0x3FE6, 0x0200, 0x0000 },
-			{ 0x7FFF, 0x7FE0, 0x3D20, 0x0000 }
-		};
-		memcpy(priv->selected_palette, palette, palette_bytes);
-		break;
-	}
-	}
-
-	return;
-}
-
-#if ENABLE_LCD
-/**
- * Draws scanline into framebuffer.
- */
 void lcd_draw_line(struct gb_s* gb, const uint8_t pixels[160],
 	const uint_least8_t line)
 {
-	struct priv_t* priv = (priv_t *)gb->direct.priv;
+	struct priv_t* priv = (priv_t*)gb->direct.priv;
 
 	for (unsigned int x = 0; x < LCD_WIDTH; x++)
 	{
@@ -1034,44 +600,141 @@ void lcd_draw_line(struct gb_s* gb, const uint8_t pixels[160],
 		[pixels[x] & 3];
 	}
 }
-#endif
 
-/**
- * Saves the LCD screen as a 15-bit BMP file.
- */
-void save_lcd_bmp(struct gb_s* gb, uint16_t fb[LCD_HEIGHT][LCD_WIDTH])
+class GameBoyEmulator : public olc::PixelGameEngine
 {
-	/* Should be enough to record up to 828 days worth of frames. */
-	static uint_fast32_t file_num = 0;
-	char file_name[32];
-	char title_str[16];
-	FILE* f;
+public:
+	GameBoyEmulator() { sAppName = "WebGuiApp"; }
+//	Emulator* m_Emulator;
+//	bool keys[8];
+//	olc::vf2d player;
+//	bool bRender;
 
-	snprintf(file_name, 32, "%.16s_%010ld.bmp",
-		gb_get_rom_name(gb, title_str), file_num);
+	struct priv_t priv;
+	struct gb_s gb;
+	enum gb_init_error_e gb_ret;
 
-	f = fopen(file_name, "wb");
+	SDL_Texture* texture;
 
-	const uint8_t bmp_hdr_rgb555[] = {
-		0x42, 0x4d, 0x36, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-		0x36, 0x00, 0x00, 0x00, 0x28, 0x00, 0x00, 0x00, 0xa0, 0x00,
-		0x00, 0x00, 0x70, 0xff, 0xff, 0xff, 0x01, 0x00, 0x10, 0x00,
-		0x00, 0x00, 0x00, 0x00, 0x00, 0xb4, 0x00, 0x00, 0x00, 0x00,
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-		0x00, 0x00, 0x00, 0x00
-	};
+public:
+	bool OnUserCreate(SDL_Renderer* renderer) override
+	{
+//		m_Emulator = new Emulator();
+//		m_Emulator->LoadRom("t.gat");
+//		m_Emulator->ResetCPU();
+//		bRender = false;
+//		m_Emulator->bRender = &bRender;
 
-	fwrite(bmp_hdr_rgb555, sizeof(uint8_t), sizeof(bmp_hdr_rgb555), f);
-	fwrite(fb, sizeof(uint16_t), LCD_HEIGHT * LCD_WIDTH, f);
-	fclose(f);
+		priv.rom = NULL;
+		priv.cart_ram = NULL;
 
-	file_num++;
+		if ((priv.rom = read_rom_to_ram("tetris.gb")) == NULL)
+		{
+			std::cout << "error";
+		}
 
-	/* Each dot shows a new frame being saved. */
-	putc('.', stdout);
-	fflush(stdout);
+		gb_ret = gb_init(&gb, &gb_rom_read, &gb_cart_ram_read, &gb_cart_ram_write,
+			&gb_error, &priv);
+
+		gb_init_lcd(&gb, &lcd_draw_line);
+
+		auto_assign_palette(&priv, gb_colour_hash(&gb));
+
+		texture = SDL_CreateTexture(renderer,
+			SDL_PIXELFORMAT_RGB555,
+			SDL_TEXTUREACCESS_STREAMING,
+			LCD_WIDTH, LCD_HEIGHT);
+		return true;
+	}
+	bool OnUserUpdate(float fElapsedTime, SDL_Renderer* renderer) override
+	{
+/*		bRender = false;
+
+		m_Emulator->Update();
+
+		for (int k = 0; k < 8; k++)
+		{
+			short nKeyState = GetAsyncKeyState((unsigned char)("\x27\x25\x26\x28ZXAS"[k]));
+			if (nKeyState & 0x8000)
+			{
+				if (!keys[k])
+				{
+					SetKeyPressed(k);
+					keys[k] = true;
+				}
+			}
+			else
+			{
+				if (keys[k])
+				{
+					SetKeyReleased(k);
+					keys[k] = false;
+				}
+			}
+		}
+
+		if(bRender)
+			Render();
+
+
+		Draw(player.x, player.y, olc::YELLOW);*/
+
+		gb_run_frame(&gb);
+
+		SDL_UpdateTexture(texture, NULL, &priv.fb, LCD_WIDTH * sizeof(uint16_t));
+		SDL_RenderClear(renderer);
+		SDL_RenderCopy(renderer, texture, NULL, NULL);
+		SDL_RenderPresent(renderer);
+
+		return true;
+	}
+
+/*	void Render()
+	{
+		for (int y = 0; y < 144; y++)
+			for (int x = 0; x < 160; x++)
+				switch (m_Emulator->m_ScreenData[y][x][0])
+				{
+				case 0xFF: Draw(x, y, olc::WHITE); break;
+				case 0xCC: Draw(x, y, olc::CYAN); break;
+				case 0x77: Draw(x, y, olc::DARK_BLUE); break;
+				case 0x00: Draw(x, y, olc::BLACK); break;
+
+				case 0x11: 
+					//Draw(x, y, olc::RED); 
+					player.x = x;
+					player.y = y;
+					break;
+
+				default: Draw(x, y, olc::DARK_CYAN);
+				}
+	}
+
+	void SetKeyPressed(int key)
+	{
+		m_Emulator->KeyPressed(key);
+	}
+
+	void SetKeyReleased(int key)
+	{
+		m_Emulator->KeyReleased(key);
+	}*/
+};
+
+int main()
+{
+//	StarField demo;
+//	if (demo.Construct(256, 240, 4, 4))
+//		demo.Start();
+
+	GameBoyEmulator demo;
+	if (demo.Construct(160, 144, 4, 4))
+		demo.Start();
+
+	return 0;
 }
 
+/*
 int main(int argc, char** argv)
 {
 	struct gb_s gb;
@@ -1091,18 +754,11 @@ int main(int argc, char** argv)
 	enum gb_init_error_e gb_ret;
 	unsigned int fast_mode = 1;
 	unsigned int fast_mode_timer = 1;
-	/* Record save file every 60 seconds. */
 	int save_timer = 60;
-	/* Must be freed */
 	char* rom_file_name = NULL;
 	char* save_file_name = NULL;
 	int ret = EXIT_SUCCESS;
 
-#if defined(_WIN32)
-	SDL_setenv("SDL_AUDIODRIVER", "directsound", SDL_TRUE);
-#endif
-
-	/* Initialise frontend implementation, in this case, SDL2. */
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO) < 0)
 	{
 		char buf[128];
@@ -1119,63 +775,6 @@ int main(int argc, char** argv)
 		LCD_WIDTH * 2, LCD_HEIGHT * 2,
 		SDL_WINDOW_RESIZABLE | SDL_WINDOW_INPUT_FOCUS);
 
-/*	if (window == NULL)
-	{
-		printf("Could not create window: %s\n", SDL_GetError());
-		ret = EXIT_FAILURE;
-		goto out;
-	}
-
-	switch (argc)
-	{
-	case 1:
-		SDL_SetWindowTitle(window, "Drag and drop ROM");
-		do
-		{
-			SDL_Delay(10);
-			SDL_PollEvent(&event);
-
-			switch (event.type)
-			{
-			case SDL_DROPFILE:
-				rom_file_name = event.drop.file;
-				break;
-
-			case SDL_QUIT:
-				ret = EXIT_FAILURE;
-				goto out;
-
-			default:
-				break;
-			}
-		} while (rom_file_name == NULL);
-
-		break;
-
-	case 2:
-		rom_file_name = argv[1];
-		break;
-
-	case 3:
-		rom_file_name = argv[1];
-		save_file_name = argv[2];
-		break;
-
-	default:
-#if ENABLE_FILE_GUI
-		printf("Usage: %s [ROM] [SAVE]\n", argv[0]);
-		puts("A file picker is presented if ROM is not given.");
-#else
-		printf("Usage: %s ROM [SAVE]\n", argv[0]);
-#endif
-		puts("SAVE is set by default if not provided.");
-		ret = EXIT_FAILURE;
-		goto out;
-	}*/
-
-
-
-	/* Copy input ROM file to allocated memory. */
 	if ((priv.rom = read_rom_to_ram("tetris.gb")) == NULL)
 	{
 		printf("%d: %s\n", __LINE__, strerror(errno));
@@ -1183,178 +782,14 @@ int main(int argc, char** argv)
 		goto out;
 	}
 
-	/* If no save file is specified, copy save file (with specific name) to
-	 * allocated memory. */
-/*	if (save_file_name == NULL)
-	{
-		char* str_replace;
-		const char extension[] = ".sav";
-
-		save_file_name = (char*)malloc(strlen(rom_file_name) + strlen(extension) + 1);
-
-		if (save_file_name == NULL)
-		{
-			printf("%d: %s\n", __LINE__, strerror(errno));
-			ret = EXIT_FAILURE;
-			goto out;
-		}
-
-		strcpy(save_file_name, rom_file_name);
-		if ((str_replace = strrchr(save_file_name, '.')) == NULL ||
-			str_replace == save_file_name)
-			str_replace = save_file_name + strlen(save_file_name);
-
-		for (unsigned int i = 0; i <= strlen(extension); i++)
-			*(str_replace++) = extension[i];
-	}*/
-
-	/* TODO: Sanity check input GB file. */
-
-	/* Initialise emulator context. */
 	gb_ret = gb_init(&gb, &gb_rom_read, &gb_cart_ram_read, &gb_cart_ram_write,
 		&gb_error, &priv);
 
-	switch (gb_ret)
-	{
-	case GB_INIT_NO_ERROR:
-		break;
 
-	case GB_INIT_CARTRIDGE_UNSUPPORTED:
-		puts("Unsupported cartridge.");
-		ret = EXIT_FAILURE;
-		goto out;
-
-	case GB_INIT_INVALID_CHECKSUM:
-		puts("Invalid ROM: Checksum failure.");
-		ret = EXIT_FAILURE;
-		goto out;
-
-	default:
-		printf("Unknown error: %d\n", gb_ret);
-		ret = EXIT_FAILURE;
-		goto out;
-	}
-
-	/* Load Save File. */
-	read_cart_ram_file(save_file_name, &priv.cart_ram, gb_get_save_size(&gb));
-
-	/* Set the RTC of the game cartridge. Only used by games that support it. */
-	{
-		time_t rawtime;
-		time(&rawtime);
-#ifdef _POSIX_C_SOURCE
-		struct tm timeinfo;
-		localtime_r(&rawtime, &timeinfo);
-#else
-		struct tm* timeinfo;
-		timeinfo = localtime(&rawtime);
-#endif
-
-		/* You could potentially force the game to allow the player to
-		 * reset the time by setting the RTC to invalid values.
-		 *
-		 * Using memset(&gb->cart_rtc, 0xFF, sizeof(gb->cart_rtc)) for
-		 * example causes Pokemon Gold/Silver to say "TIME NOT SET",
-		 * allowing the player to set the time without having some dumb
-		 * password.
-		 *
-		 * The memset has to be done directly to gb->cart_rtc because
-		 * gb_set_rtc() processes the input values, which may cause
-		 * games to not detect invalid values.
-		 */
-
-		 /* Set RTC. Only games that specify support for RTC will use
-		  * these values. */
-#ifdef _POSIX_C_SOURCE
-		gb_set_rtc(&gb, &timeinfo);
-#else
-		gb_set_rtc(&gb, timeinfo);
-#endif
-	}
-
-#if ENABLE_SOUND
-	SDL_AudioDeviceID dev;
-#endif
-
-#if defined(ENABLE_SOUND_BLARGG)
-	audio_init(&dev);
-#elif defined(ENABLE_SOUND_MINIGB)
-	{
-		SDL_AudioSpec want, have;
-
-		want.freq = AUDIO_SAMPLE_RATE;
-		want.format = AUDIO_F32SYS,
-			want.channels = 2;
-		want.samples = AUDIO_SAMPLES;
-		want.callback = audio_callback;
-		want.userdata = NULL;
-
-		printf("Audio driver: %s\n", SDL_GetAudioDeviceName(0, 0));
-
-		if ((dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0)) == 0)
-		{
-			printf("SDL could not open audio device: %s\n", SDL_GetError());
-			exit(EXIT_FAILURE);
-		}
-
-		audio_init();
-		SDL_PauseAudioDevice(dev, 0);
-	}
-#endif
-
-#if ENABLE_LCD
 	gb_init_lcd(&gb, &lcd_draw_line);
-#endif
-
-	/* Allow the joystick input even if game is in background. */
-	SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
-
-	if (SDL_GameControllerAddMappingsFromFile("gamecontrollerdb.txt") < 0)
-	{
-		printf("Unable to assign joystick mappings: %s\n",
-			SDL_GetError());
-	}
-
-	/* Open the first available controller. */
-	for (int i = 0; i < SDL_NumJoysticks(); i++)
-	{
-		if (!SDL_IsGameController(i))
-			continue;
-
-		controller = SDL_GameControllerOpen(i);
-
-		if (controller)
-		{
-			printf("Game Controller %s connected.\n",
-				SDL_GameControllerName(controller));
-			break;
-		}
-		else
-		{
-			printf("Could not open game controller %i: %s\n",
-				i, SDL_GetError());
-		}
-	}
-
-	{
-		/* 12 for "Peanut-SDL: " and a maximum of 16 for the title. */
-		char title_str[28] = "Peanut-SDL: ";
-		printf("ROM: %s\n", gb_get_rom_name(&gb, title_str + 12));
-		printf("MBC: %d\n", gb.mbc);
-		SDL_SetWindowTitle(window, title_str);
-	}
-
-	SDL_SetWindowMinimumSize(window, LCD_WIDTH, LCD_HEIGHT);
 
 	renderer = SDL_CreateRenderer(window, -1,
 		SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
-
-	if (renderer == NULL)
-	{
-		printf("Could not create renderer: %s\n", SDL_GetError());
-		ret = EXIT_FAILURE;
-		goto out;
-	}
 
 	if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) < 0)
 	{
@@ -1372,7 +807,6 @@ int main(int argc, char** argv)
 
 	SDL_RenderPresent(renderer);
 
-	/* Use integer scale. */
 	SDL_RenderSetLogicalSize(renderer, LCD_WIDTH, LCD_HEIGHT);
 	SDL_RenderSetIntegerScale(renderer, (SDL_bool)1);
 
@@ -1397,11 +831,8 @@ int main(int argc, char** argv)
 		static unsigned int selected_palette = 3;
 		static unsigned int dump_bmp = 0;
 
-		/* Calculate the time taken to draw frame, then later add a
-		 * delay to cap at 60 fps. */
 		old_ticks = SDL_GetTicks();
 
-		/* Get joypad input. */
 		while (SDL_PollEvent(&event))
 		{
 			static int fullscreen = 0;
@@ -1536,10 +967,9 @@ int main(int argc, char** argv)
 						break;
 					}
 
-					if (++selected_palette == NUMBER_OF_PALETTES)
-						selected_palette = 0;
-
-					manual_assign_palette(&priv, selected_palette);
+//					if (++selected_palette == NUMBER_OF_PALETTES)
+//						selected_palette = 0;
+//					manual_assign_palette(&priv, selected_palette);
 					break;
 				}
 
@@ -1621,10 +1051,8 @@ int main(int argc, char** argv)
 			}
 		}
 
-		/* Execute CPU cycles until the screen has to be redrawn. */
 		gb_run_frame(&gb);
 
-		/* Tick the internal RTC when 1 second has passed. */
 		rtc_timer += target_speed_ms / fast_mode;
 
 		if (rtc_timer >= 1000)
@@ -1633,58 +1061,32 @@ int main(int argc, char** argv)
 			gb_tick_rtc(&gb);
 		}
 
-		/* Skip frames during fast mode. */
 		if (fast_mode_timer > 1)
 		{
 			fast_mode_timer--;
-			/* We continue here since the rest of the logic in the
-			 * loop is for drawing the screen and delaying. */
 			continue;
 		}
 
 		fast_mode_timer = fast_mode;
 
-#if ENABLE_SOUND_BLARGG
-		/* Process audio. */
-		audio_frame();
-#endif
-
-#if ENABLE_LCD
-		/* Copy frame buffer to SDL screen. */
 		SDL_UpdateTexture(texture, NULL, &priv.fb, LCD_WIDTH * sizeof(uint16_t));
 		SDL_RenderClear(renderer);
 		SDL_RenderCopy(renderer, texture, NULL, NULL);
 		SDL_RenderPresent(renderer);
 
-		if (dump_bmp)
-			save_lcd_bmp(&gb, priv.fb);
-
-#endif
-
-		/* Use a delay that will draw the screen at a rate of 59.7275 Hz. */
 		new_ticks = SDL_GetTicks();
 
-		/* Since we can only delay for a maximum resolution of 1ms, we
-		 * can accumulate the error and compensate for the delay
-		 * accuracy when the delay compensation surpasses 1ms. */
 		speed_compensation += target_speed_ms - (new_ticks - old_ticks);
 
-		/* We cast the delay compensation value to an integer, since it
-		 * is the type used by SDL_Delay. This is where delay accuracy
-		 * is lost. */
 		delay = (int)(speed_compensation);
 
-		/* We then subtract the actual delay value by the requested
-		 * delay value. */
 		speed_compensation -= delay;
 
-		/* Only run delay logic if required. */
 		if (delay > 0)
 		{
 			uint_fast32_t delay_ticks = SDL_GetTicks();
 			uint_fast32_t after_delay_ticks;
 
-			/* Tick the internal RTC when 1 second has passed. */
 			rtc_timer += delay;
 
 			if (rtc_timer >= 1000)
@@ -1692,26 +1094,16 @@ int main(int argc, char** argv)
 				rtc_timer -= 1000;
 				gb_tick_rtc(&gb);
 
-				/* If 60 seconds has passed, record save file.
-				 * We do this because the external audio library
-				 * used contains asserts that will abort the
-				 * program without save.
-				 * TODO: Remove use of assert in audio library
-				 * in release build. */
-				 /* TODO: Remove all workarounds due to faulty
-				  * external libraries. */
 				--save_timer;
 
 				if (!save_timer)
 				{
 #if ENABLE_SOUND_BLARGG
-					/* Locking the audio thread to reduce
-					 * possibility of abort during save. */
 					SDL_LockAudioDevice(dev);
 #endif
-					write_cart_ram_file(save_file_name,
-						&priv.cart_ram,
-						gb_get_save_size(&gb));
+//					write_cart_ram_file(save_file_name,
+//						&priv.cart_ram,
+//						gb_get_save_size(&gb));
 #if ENABLE_SOUND_BLARGG
 					SDL_UnlockAudioDevice(dev);
 #endif
@@ -1719,9 +1111,6 @@ int main(int argc, char** argv)
 				}
 			}
 
-			/* This will delay for at least the number of
-			 * milliseconds requested, so we have to compensate for
-			 * error here too. */
 			SDL_Delay(delay);
 
 			after_delay_ticks = SDL_GetTicks();
@@ -1740,15 +1129,12 @@ quit:
 	audio_cleanup();
 #endif
 
-	/* Record save file. */
-	write_cart_ram_file(save_file_name, &priv.cart_ram, gb_get_save_size(&gb));
+//	write_cart_ram_file(save_file_name, &priv.cart_ram, gb_get_save_size(&gb));
 
 out:
 	free(priv.rom);
 	free(priv.cart_ram);
 
-	/* If the save file name was automatically generated (which required memory
-	 * allocated on the help), then free it here. */
 	if (argc == 2)
 		free(save_file_name);
 
@@ -1756,4 +1142,4 @@ out:
 		free(rom_file_name);
 
 	return ret;
-}
+}*/
