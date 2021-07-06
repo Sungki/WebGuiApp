@@ -723,12 +723,12 @@ public:
 			{
 				if (priv.nameTable[y][x] == 0x2F)
 				{
-					Draw(x, y);
+					DrawRect(x, y,8,8);
 				}
 
 				if (priv.nameTable[y][x] == 0x7B)
 				{
-					Draw(x, y, olc::RED);
+					DrawRect(x, y,8,8, olc::RED);
 				}
 			}
 

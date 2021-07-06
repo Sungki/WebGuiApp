@@ -1289,15 +1289,14 @@ void __gb_draw_line(struct gb_s* gb)
 				tile += 2 * py;
 				t1 = gb->vram[tile];
 				t2 = gb->vram[tile + 1];
+
+				name[bg_x] = idx;
 			}
 
 			/* copy background */
 			uint8_t c = (t1 & 0x1) | ((t2 & 0x1) << 1);
 			pixels[disp_x] = gb->display.bg_palette[c];
 			pixels[disp_x] |= LCD_PALETTE_BG;
-
-
-			name[disp_x] = idx;
 
 			t1 = t1 >> 1;
 			t2 = t2 >> 1;
