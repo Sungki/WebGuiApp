@@ -446,7 +446,7 @@ struct gb_s
 			const uint_fast8_t line);
 
 		void (*lcd_name_table)(struct gb_s* gb,
-			const uint8_t index,
+			const uint8_t* index,
 			const uint_fast8_t line);
 
 		/* Palettes */
@@ -1199,6 +1199,7 @@ uint8_t __gb_execute_cb(struct gb_s* gb)
 void __gb_draw_line(struct gb_s* gb)
 {
 	uint8_t pixels[160] = { 0 };
+	uint8_t name[160] = { 0 };
 
 	/* If LCD not initialised by front-end, don't render anything. */
 	if (gb->display.lcd_draw_line == NULL)
@@ -1288,14 +1289,16 @@ void __gb_draw_line(struct gb_s* gb)
 				tile += 2 * py;
 				t1 = gb->vram[tile];
 				t2 = gb->vram[tile + 1];
-
-				gb->display.lcd_name_table(gb, idx, bg_x);
 			}
 
 			/* copy background */
 			uint8_t c = (t1 & 0x1) | ((t2 & 0x1) << 1);
 			pixels[disp_x] = gb->display.bg_palette[c];
 			pixels[disp_x] |= LCD_PALETTE_BG;
+
+
+			name[disp_x] = idx;
+
 			t1 = t1 >> 1;
 			t2 = t2 >> 1;
 			px++;
@@ -1464,6 +1467,8 @@ void __gb_draw_line(struct gb_s* gb)
 	}
 
 	gb->display.lcd_draw_line(gb, pixels, gb->gb_reg.LY);
+
+	gb->display.lcd_name_table(gb, name, gb->gb_reg.LY);
 }
 #endif
 
@@ -3759,7 +3764,7 @@ void gb_init_lcd(struct gb_s* gb,
 		const uint8_t* pixels,
 		const uint_fast8_t line),
 	void (*lcd_name_table)(struct gb_s* gb,
-		const uint8_t index,
+		const uint8_t* index,
 		const uint_fast8_t line))
 {
 	gb->display.lcd_draw_line = lcd_draw_line;

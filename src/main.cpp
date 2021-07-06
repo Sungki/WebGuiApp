@@ -602,14 +602,14 @@ void lcd_draw_line(struct gb_s* gb, const uint8_t pixels[160],
 	}
 }
 
-void lcd_name_table(struct gb_s* gb, uint8_t index,
+void lcd_name_table(struct gb_s* gb, const uint8_t index[160],
 	const uint_least8_t line)
 {
 	struct priv_t* priv = (priv_t*)gb->direct.priv;
 
 	for (unsigned int x = 0; x < LCD_WIDTH; x++)
 	{
-		priv->nameTable[line][x] = index;
+		priv->nameTable[line][x] = index[x];
 	}
 }
 
@@ -723,7 +723,7 @@ public:
 		SDL_RenderCopy(renderer, texture, NULL, NULL);
 		SDL_RenderPresent(renderer);
 
-//		SDL_Delay(10);
+		SDL_Delay(10);
 
 		return true;
 	}
