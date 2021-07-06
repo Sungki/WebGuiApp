@@ -716,12 +716,27 @@ public:
 		gb_run_frame(&gb);
 
 
+		Clear(olc::BLACK);
 
-		SDL_UpdateTexture(texture, NULL, &priv.nameTable, LCD_WIDTH * sizeof(uint16_t));
+		for(int y = 0; y < LCD_HEIGHT; y++)
+			for (unsigned int x = 0; x < LCD_WIDTH; x++)
+			{
+				if (priv.nameTable[y][x] == 0x2F)
+				{
+					Draw(x, y);
+				}
+
+				if (priv.nameTable[y][x] == 0x7B)
+				{
+					Draw(x, y, olc::RED);
+				}
+			}
+
+//		SDL_UpdateTexture(texture, NULL, &priv.nameTable, LCD_WIDTH * sizeof(uint16_t));
 //		SDL_UpdateTexture(texture, NULL, &priv.fb, LCD_WIDTH * sizeof(uint16_t));
-		SDL_RenderClear(renderer);
-		SDL_RenderCopy(renderer, texture, NULL, NULL);
-		SDL_RenderPresent(renderer);
+//		SDL_RenderClear(renderer);
+//		SDL_RenderCopy(renderer, texture, NULL, NULL);
+//		SDL_RenderPresent(renderer);
 
 		SDL_Delay(10);
 

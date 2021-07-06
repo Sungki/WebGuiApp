@@ -2174,17 +2174,17 @@ namespace olc
             //SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
             //SDL_RenderClear(renderer);
 
-            SDL_Texture* texture = NULL;
+//            SDL_Texture* texture = NULL;
 
             if (!OnUserUpdate(elapsedTime, renderer))
                 bAtomActive = false;
 
-//            SDL_Surface* surf = SDL_CreateRGBSurfaceFrom(pDefaultDrawTarget->GetData(), nScreenWidth, nScreenHeight, 32, nScreenWidth * sizeof(Uint32), 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
-//            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surf);
+            SDL_Surface* surf = SDL_CreateRGBSurfaceFrom(pDefaultDrawTarget->GetData(), nScreenWidth, nScreenHeight, 32, nScreenWidth * sizeof(Uint32), 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surf);
 
 
 //            SDL_RenderClear(renderer);
-//            SDL_RenderCopy(renderer, texture, NULL, NULL);
+            SDL_RenderCopy(renderer, texture, NULL, NULL);
 
 //            ImGui::Begin("Image");
 //            ImGui::Image(texture, ImVec2(100, 100));
@@ -2193,8 +2193,8 @@ namespace olc
   //          ImGui::Render();
 //            ImGuiSDL::Render(ImGui::GetDrawData());
 
-//            SDL_RenderPresent(renderer);
-//            SDL_DestroyTexture(texture);
+            SDL_RenderPresent(renderer);
+            SDL_DestroyTexture(texture);
 
 
             fFrameTimer += elapsedTime;
