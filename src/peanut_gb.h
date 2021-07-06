@@ -445,6 +445,10 @@ struct gb_s
 			const uint8_t* pixels,
 			const uint_fast8_t line);
 
+		void (*lcd_name_table)(struct gb_s* gb,
+			const uint8_t index,
+			const uint_fast8_t line);
+
 		/* Palettes */
 		uint8_t bg_palette[4];
 		uint8_t sp_palette[8];
@@ -1284,6 +1288,8 @@ void __gb_draw_line(struct gb_s* gb)
 				tile += 2 * py;
 				t1 = gb->vram[tile];
 				t2 = gb->vram[tile + 1];
+
+				gb->display.lcd_name_table(gb, idx, bg_x);
 			}
 
 			/* copy background */
@@ -3751,9 +3757,14 @@ const char* gb_get_rom_name(struct gb_s* gb, char* title_str)
 void gb_init_lcd(struct gb_s* gb,
 	void (*lcd_draw_line)(struct gb_s* gb,
 		const uint8_t* pixels,
+		const uint_fast8_t line),
+	void (*lcd_name_table)(struct gb_s* gb,
+		const uint8_t index,
 		const uint_fast8_t line))
 {
 	gb->display.lcd_draw_line = lcd_draw_line;
+
+	gb->display.lcd_name_table = lcd_name_table;
 
 	gb->direct.interlace = 0;
 	gb->display.interlace_count = 0;

@@ -336,6 +336,7 @@ struct priv_t
 	uint8_t* cart_ram;
 	uint16_t selected_palette[3][4];
 	uint16_t fb[LCD_HEIGHT][LCD_WIDTH];
+	uint16_t nameTable[LCD_HEIGHT][LCD_WIDTH];
 };
 
 uint8_t gb_rom_read(struct gb_s* gb, const uint_fast32_t addr)
@@ -601,6 +602,17 @@ void lcd_draw_line(struct gb_s* gb, const uint8_t pixels[160],
 	}
 }
 
+void lcd_name_table(struct gb_s* gb, uint8_t index,
+	const uint_least8_t line)
+{
+	struct priv_t* priv = (priv_t*)gb->direct.priv;
+
+	for (unsigned int x = 0; x < LCD_WIDTH; x++)
+	{
+		priv->nameTable[line][x] = index;
+	}
+}
+
 class GameBoyEmulator : public olc::PixelGameEngine
 {
 public:
@@ -630,7 +642,7 @@ public:
 		priv.rom = NULL;
 		priv.cart_ram = NULL;
 
-		if ((priv.rom = read_rom_to_ram("game.gb")) == NULL)
+		if ((priv.rom = read_rom_to_ram("tetris.gb")) == NULL)
 		{
 			std::cout << "error";
 		}
@@ -638,7 +650,7 @@ public:
 		gb_ret = gb_init(&gb, &gb_rom_read, &gb_cart_ram_read, &gb_cart_ram_write,
 			&gb_error, &priv);
 
-		gb_init_lcd(&gb, &lcd_draw_line);
+		gb_init_lcd(&gb, &lcd_draw_line, &lcd_name_table);
 
 		auto_assign_palette(&priv, gb_colour_hash(&gb));
 
@@ -703,12 +715,15 @@ public:
 
 		gb_run_frame(&gb);
 
-		SDL_UpdateTexture(texture, NULL, &priv.fb, LCD_WIDTH * sizeof(uint16_t));
+
+
+		SDL_UpdateTexture(texture, NULL, &priv.nameTable, LCD_WIDTH * sizeof(uint16_t));
+//		SDL_UpdateTexture(texture, NULL, &priv.fb, LCD_WIDTH * sizeof(uint16_t));
 		SDL_RenderClear(renderer);
 		SDL_RenderCopy(renderer, texture, NULL, NULL);
 		SDL_RenderPresent(renderer);
 
-		SDL_Delay(10);
+//		SDL_Delay(10);
 
 		return true;
 	}
