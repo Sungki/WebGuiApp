@@ -721,15 +721,9 @@ public:
 		for(int y = 0; y < LCD_HEIGHT; y++)
 			for (unsigned int x = 0; x < LCD_WIDTH; x++)
 			{
-				if (priv.nameTable[y][x] == 0x2F)
-				{
-					DrawRect(x, y,8,8);
-				}
-
-				if (priv.nameTable[y][x] == 0x7B)
-				{
-					DrawRect(x, y,8,8, olc::RED);
-				}
+				if (priv.nameTable[y][x] == 0x2F) DrawRect(x, y,8,8);
+				if (priv.nameTable[y][x] == 0x7B) DrawRect(x, y,8,8, olc::RED);
+				if (priv.nameTable[y][x] == 0x8C) DrawRect(x, y, 8, 8, olc::CYAN);
 			}
 
 //		SDL_UpdateTexture(texture, NULL, &priv.nameTable, LCD_WIDTH * sizeof(uint16_t));
