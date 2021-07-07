@@ -1462,6 +1462,8 @@ void __gb_draw_line(struct gb_s* gb)
 	}
 
 	gb->display.lcd_draw_line(gb, pixels, gb->gb_reg.LY);
+
+	gb->display.copy_vram(gb, gb->vram);
 }
 #endif
 
@@ -3486,8 +3488,6 @@ void __gb_step_cpu(struct gb_s* gb)
 					!gb->display.interlace_count;
 			}
 #endif
-
-			gb->display.copy_vram(gb, gb->vram);
 		}
 		/* Normal Line */
 		else if (gb->gb_reg.LY < LCD_HEIGHT)

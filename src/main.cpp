@@ -609,6 +609,10 @@ void copy_vram(struct gb_s* gb, const uint8_t _vram[0x2000])
 	for (unsigned int x = 0; x < 0x2000; x++)
 	{
 		priv->Vram[x] = _vram[x];
+
+//		priv->Vram[x] = priv->selected_palette
+//			[(_vram[x] & LCD_PALETTE_ALL) >> 4]
+//		[_vram[x] & 3];
 	}
 }
 
@@ -712,6 +716,24 @@ public:
 		gb_run_frame(&gb);
 
 		Clear(olc::BLACK);
+
+		int x =0, y=0;
+//		int count = 0;
+
+		for (int i = 0; i < 0x2000; i++, x++)
+		{
+			if (x > LCD_WIDTH)
+			{
+				x = 0;
+//				y++;
+			}
+//			if (priv.Vram[i+] == 0x27)
+//			{
+//				DrawRect(0, 0, 4, 4, priv.Vram[i]);
+				DrawRect(0, 0, 4, 4, olc::Pixel(0, 0, priv.Vram[i]));
+				//				count++;
+//			}
+		}
 
 //				if (priv.nameTable[y][x] == 0x21) DrawRect(x, y,1,1, olc::Pixel(0,0,100));
 /*				if (priv.nameTable[y][x] == 0x22) DrawRect(x, y,4,4, olc::Pixel(0, 0, 150));
