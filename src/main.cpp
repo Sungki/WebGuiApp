@@ -336,7 +336,7 @@ struct priv_t
 	uint8_t* cart_ram;
 	uint16_t selected_palette[3][4];
 	uint16_t fb[LCD_HEIGHT][LCD_WIDTH];
-	uint16_t Vram[0x2000];
+	uint8_t Vram[0x2000];
 };
 
 uint8_t gb_rom_read(struct gb_s* gb, const uint_fast32_t addr)
@@ -718,23 +718,31 @@ public:
 		Clear(olc::BLACK);
 
 		int x =0, y=0;
-//		int count = 0;
+		int count = 0;
 
-		for (int i = 0; i < 0x2000; i++, x++)
+		for (unsigned int i = 0; i < 0x2000; i++, x++)
 		{
 			if (x > LCD_WIDTH)
 			{
 				x = 0;
-//				y++;
+				y++;
 			}
-//			if (priv.Vram[i+] == 0x27)
+//			if (priv.Vram[i] == 0x7F)
 //			{
-//				DrawRect(0, 0, 4, 4, priv.Vram[i]);
-				DrawRect(0, 0, 4, 4, olc::Pixel(0, 0, priv.Vram[i]));
-				//				count++;
+				if (priv.Vram[i] == 0x21) DrawRect(x, y, 4, 4, olc::Pixel(0, 0, 100));
+				if (priv.Vram[i] == 0x22) DrawRect(x, y,4,4, olc::Pixel(0, 0, 150));
+				if (priv.Vram[i] == 0x23) DrawRect(x, y, 4, 4, olc::Pixel(0, 0, 255));
+				if (priv.Vram[i] == 0x24) DrawRect(x, y, 4, 4, olc::Pixel(0, 100, 0));
+				if (priv.Vram[i] == 0x25) DrawRect(x, y, 4, 4, olc::Pixel(0, 150, 0));
+				if (priv.Vram[i] == 0x26) DrawRect(x, y, 4, 4, olc::Pixel(0, 255, 0));
+				if (priv.Vram[i] == 0x27) DrawRect(x, y, 4, 4, olc::Pixel(100, 0, 0));
+				if (priv.Vram[i] == 0x28) DrawRect(x, y, 4, 4, olc::Pixel(150, 0, 0));
+				if (priv.Vram[i] == 0x29) DrawRect(x, y, 4, 4, olc::Pixel(255, 0, 0));
+//				count++;
 //			}
 		}
 
+//		std::cout << count << std::endl;
 //				if (priv.nameTable[y][x] == 0x21) DrawRect(x, y,1,1, olc::Pixel(0,0,100));
 /*				if (priv.nameTable[y][x] == 0x22) DrawRect(x, y,4,4, olc::Pixel(0, 0, 150));
 				if (priv.nameTable[y][x] == 0x23) DrawRect(x, y, 4, 4, olc::Pixel(0, 0, 255));
