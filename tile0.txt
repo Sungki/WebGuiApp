@@ -1,0 +1,8 @@
+00 cc cc cc cc cc cc cc 
+00 cc cc cc cc cc cc cc 
+03 cc cc cc cc cc cc cc 
+03 cc cc cc cc cc cc cc 
+03 cc cc cc cc cc cc cc 
+03 cc cc cc cc cc cc cc 
+00 cc cc cc cc cc cc cc 
+00 cc cc cc cc cc cc cc 

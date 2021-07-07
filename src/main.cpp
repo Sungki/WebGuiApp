@@ -642,7 +642,7 @@ public:
 		priv.rom = NULL;
 		priv.cart_ram = NULL;
 
-		if ((priv.rom = read_rom_to_ram("test.gb")) == NULL)
+		if ((priv.rom = read_rom_to_ram("tetris.gb")) == NULL)
 		{
 			std::cout << "error";
 		}
@@ -720,7 +720,7 @@ public:
 		int x =0, y=0;
 		int count = 0;
 
-		for (unsigned int i = 0; i < 0x2000; i++, x++)
+		for (unsigned int i = 0; i < 8192; i++, x++)
 		{
 			if (x > LCD_WIDTH)
 			{

@@ -1462,8 +1462,6 @@ void __gb_draw_line(struct gb_s* gb)
 	}
 
 	gb->display.lcd_draw_line(gb, pixels, gb->gb_reg.LY);
-
-	gb->display.copy_vram(gb, gb->vram);
 }
 #endif
 
@@ -1538,6 +1536,29 @@ void __gb_step_cpu(struct gb_s* gb)
 				gb->gb_reg.IF ^= CONTROL_INTR;
 			}
 		}
+	}
+
+	if (gb->cpu_reg.pc == 0x282a)
+	{
+/*		unsigned char tiles[8][8];
+		unsigned short y = (0 >> 1) & 7;
+		unsigned char x, bitIndex;
+
+		for (int x = 0; x < 8; x++) {
+			bitIndex = 1 << (7 - x);
+			tiles[y][x] = ((gb->vram[2] & bitIndex) ? 1 : 0) + ((gb->vram[3] & bitIndex) ? 2 : 0);
+		}
+
+		FILE* f = fopen("tile0.txt", "wb");
+		int x1, y1;
+		for (y1 = 0; y1 < 8; y1++)
+		{
+			for (x1 = 0; x1 < 8; x1++) fprintf(f, "%02x ", tiles[x1][y1]);
+			fprintf(f, "\n");
+		}
+		fclose(f);*/
+
+		gb->display.copy_vram(gb, gb->vram);
 	}
 
 	/* Obtain opcode */
