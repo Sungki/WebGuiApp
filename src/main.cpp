@@ -715,7 +715,6 @@ public:
 
 		gb_run_frame(&gb);
 
-
 		Clear(olc::BLACK);
 
 		for(int y = 0; y < LCD_HEIGHT; y++)
@@ -724,6 +723,7 @@ public:
 				if (priv.nameTable[y][x] == 0x2F) DrawRect(x, y,8,8);
 				if (priv.nameTable[y][x] == 0x7B) DrawRect(x, y,8,8, olc::RED);
 				if (priv.nameTable[y][x] == 0x8C) DrawRect(x, y, 8, 8, olc::CYAN);
+				if (priv.nameTable[y][x] == 0x2C) DrawRect(x, y, 8, 8, olc::DARK_BLUE);
 			}
 
 //		SDL_UpdateTexture(texture, NULL, &priv.nameTable, LCD_WIDTH * sizeof(uint16_t));
