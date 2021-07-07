@@ -337,6 +337,8 @@ struct priv_t
 	uint16_t selected_palette[3][4];
 	uint16_t fb[LCD_HEIGHT][LCD_WIDTH];
 	uint16_t nameTable[LCD_HEIGHT][LCD_WIDTH];
+
+
 };
 
 uint8_t gb_rom_read(struct gb_s* gb, const uint_fast32_t addr)
@@ -642,7 +644,7 @@ public:
 		priv.rom = NULL;
 		priv.cart_ram = NULL;
 
-		if ((priv.rom = read_rom_to_ram("tetris.gb")) == NULL)
+		if ((priv.rom = read_rom_to_ram("test.gb")) == NULL)
 		{
 			std::cout << "error";
 		}
@@ -720,10 +722,10 @@ public:
 		for(int y = 0; y < LCD_HEIGHT; y++)
 			for (unsigned int x = 0; x < LCD_WIDTH; x++)
 			{
-				if (priv.nameTable[y][x] == 0x2F) DrawRect(x, y,8,8);
-				if (priv.nameTable[y][x] == 0x7B) DrawRect(x, y,8,8, olc::RED);
-				if (priv.nameTable[y][x] == 0x8C) DrawRect(x, y, 8, 8, olc::CYAN);
-				if (priv.nameTable[y][x] == 0x2C) DrawRect(x, y, 8, 8, olc::DARK_BLUE);
+				if (priv.nameTable[y][x] == 0x20) DrawRect(x, y,8,8);
+				if (priv.nameTable[y][x] == 0x21) DrawRect(x, y,8,8, olc::RED);
+				if (priv.nameTable[y][x] == 0x23) DrawRect(x, y, 8, 8, olc::CYAN);
+				if (priv.nameTable[y][x] == 0x24) DrawRect(x, y, 8, 8, olc::DARK_BLUE);
 			}
 
 //		SDL_UpdateTexture(texture, NULL, &priv.nameTable, LCD_WIDTH * sizeof(uint16_t));
