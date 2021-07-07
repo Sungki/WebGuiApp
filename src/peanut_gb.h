@@ -445,9 +445,8 @@ struct gb_s
 			const uint8_t* pixels,
 			const uint_fast8_t line);
 
-		void (*lcd_name_table)(struct gb_s* gb,
-			const uint8_t* index,
-			const uint_fast8_t line);
+		void (*copy_vram)(struct gb_s* gb,
+			const uint8_t* _vram);
 
 		/* Palettes */
 		uint8_t bg_palette[4];
@@ -1199,7 +1198,6 @@ uint8_t __gb_execute_cb(struct gb_s* gb)
 void __gb_draw_line(struct gb_s* gb)
 {
 	uint8_t pixels[160] = { 0 };
-	uint8_t name[160] = { 0 };
 
 	/* If LCD not initialised by front-end, don't render anything. */
 	if (gb->display.lcd_draw_line == NULL)
@@ -1289,8 +1287,6 @@ void __gb_draw_line(struct gb_s* gb)
 				tile += 2 * py;
 				t1 = gb->vram[tile];
 				t2 = gb->vram[tile + 1];
-
-				name[bg_x] = idx;
 			}
 
 			/* copy background */
@@ -1466,8 +1462,6 @@ void __gb_draw_line(struct gb_s* gb)
 	}
 
 	gb->display.lcd_draw_line(gb, pixels, gb->gb_reg.LY);
-
-	gb->display.lcd_name_table(gb, name, gb->gb_reg.LY);
 }
 #endif
 
@@ -3491,8 +3485,9 @@ void __gb_step_cpu(struct gb_s* gb)
 				gb->display.interlace_count =
 					!gb->display.interlace_count;
 			}
-
 #endif
+
+			gb->display.copy_vram(gb, gb->vram);
 		}
 		/* Normal Line */
 		else if (gb->gb_reg.LY < LCD_HEIGHT)
@@ -3762,13 +3757,12 @@ void gb_init_lcd(struct gb_s* gb,
 	void (*lcd_draw_line)(struct gb_s* gb,
 		const uint8_t* pixels,
 		const uint_fast8_t line),
-	void (*lcd_name_table)(struct gb_s* gb,
-		const uint8_t* index,
-		const uint_fast8_t line))
+	void (*copy_vram)(struct gb_s* gb,
+		const uint8_t* _vram))
 {
 	gb->display.lcd_draw_line = lcd_draw_line;
 
-	gb->display.lcd_name_table = lcd_name_table;
+	gb->display.copy_vram = copy_vram;
 
 	gb->direct.interlace = 0;
 	gb->display.interlace_count = 0;

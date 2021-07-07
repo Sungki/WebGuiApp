@@ -336,9 +336,7 @@ struct priv_t
 	uint8_t* cart_ram;
 	uint16_t selected_palette[3][4];
 	uint16_t fb[LCD_HEIGHT][LCD_WIDTH];
-	uint16_t nameTable[LCD_HEIGHT][LCD_WIDTH];
-
-
+	uint16_t Vram[0x2000];
 };
 
 uint8_t gb_rom_read(struct gb_s* gb, const uint_fast32_t addr)
@@ -604,14 +602,13 @@ void lcd_draw_line(struct gb_s* gb, const uint8_t pixels[160],
 	}
 }
 
-void lcd_name_table(struct gb_s* gb, const uint8_t index[160],
-	const uint_least8_t line)
+void copy_vram(struct gb_s* gb, const uint8_t _vram[0x2000])
 {
 	struct priv_t* priv = (priv_t*)gb->direct.priv;
 
-	for (unsigned int x = 0; x < LCD_WIDTH; x++)
+	for (unsigned int x = 0; x < 0x2000; x++)
 	{
-		priv->nameTable[line][x] = index[x];
+		priv->Vram[x] = _vram[x];
 	}
 }
 
@@ -629,9 +626,6 @@ public:
 	enum gb_init_error_e gb_ret;
 
 	SDL_Texture* texture;
-
-	SDL_Event event;
-
 public:
 	bool OnUserCreate(SDL_Renderer* renderer) override
 	{
@@ -652,7 +646,7 @@ public:
 		gb_ret = gb_init(&gb, &gb_rom_read, &gb_cart_ram_read, &gb_cart_ram_write,
 			&gb_error, &priv);
 
-		gb_init_lcd(&gb, &lcd_draw_line, &lcd_name_table);
+		gb_init_lcd(&gb, &lcd_draw_line, &copy_vram);
 
 		auto_assign_palette(&priv, gb_colour_hash(&gb));
 
@@ -719,14 +713,15 @@ public:
 
 		Clear(olc::BLACK);
 
-		for(int y = 0; y < LCD_HEIGHT; y++)
-			for (unsigned int x = 0; x < LCD_WIDTH; x++)
-			{
-				if (priv.nameTable[y][x] == 0x20) DrawRect(x, y,8,8);
-				if (priv.nameTable[y][x] == 0x21) DrawRect(x, y,8,8, olc::RED);
-				if (priv.nameTable[y][x] == 0x23) DrawRect(x, y, 8, 8, olc::CYAN);
-				if (priv.nameTable[y][x] == 0x24) DrawRect(x, y, 8, 8, olc::DARK_BLUE);
-			}
+//				if (priv.nameTable[y][x] == 0x21) DrawRect(x, y,1,1, olc::Pixel(0,0,100));
+/*				if (priv.nameTable[y][x] == 0x22) DrawRect(x, y,4,4, olc::Pixel(0, 0, 150));
+				if (priv.nameTable[y][x] == 0x23) DrawRect(x, y, 4, 4, olc::Pixel(0, 0, 255));
+				if (priv.nameTable[y][x] == 0x24) DrawRect(x, y, 4, 4, olc::Pixel(0, 100, 0));
+				if (priv.nameTable[y][x] == 0x25) DrawRect(x, y, 4, 4, olc::Pixel(0, 150, 0));
+				if (priv.nameTable[y][x] == 0x26) DrawRect(x, y, 4, 4, olc::Pixel(0, 255, 0));
+				if (priv.nameTable[y][x] == 0x27) DrawRect(x, y, 4, 4, olc::Pixel(100, 0, 0));
+				if (priv.nameTable[y][x] == 0x28) DrawRect(x, y, 4, 4, olc::Pixel(150, 0, 0));
+				if (priv.nameTable[y][x] == 0x29) DrawRect(x, y, 4, 4, olc::Pixel(255, 0, 0));*/
 
 //		SDL_UpdateTexture(texture, NULL, &priv.nameTable, LCD_WIDTH * sizeof(uint16_t));
 //		SDL_UpdateTexture(texture, NULL, &priv.fb, LCD_WIDTH * sizeof(uint16_t));
@@ -778,7 +773,7 @@ int main()
 //		demo.Start();
 
 	GameBoyEmulator demo;
-	if (demo.Construct(160, 144, 5, 5))
+	if (demo.Construct(160, 144, 4, 4))
 		demo.Start();
 
 	return 0;
