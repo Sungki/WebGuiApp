@@ -1558,7 +1558,7 @@ void __gb_step_cpu(struct gb_s* gb)
 		}
 		fclose(f);*/
 
-//		gb->display.copy_vram(gb, gb->vram);
+		gb->display.copy_vram(gb, gb->vram);
 	}
 
 	/* Obtain opcode */
@@ -3541,8 +3541,9 @@ void __gb_step_cpu(struct gb_s* gb)
 	{
 		gb->lcd_mode = LCD_TRANSFER;
 #if ENABLE_LCD
-		__gb_draw_line(gb);
+//		__gb_draw_line(gb);
 #endif
+
 	}
 }
 

@@ -336,9 +336,9 @@ struct priv_t
 	uint8_t* cart_ram;
 	uint16_t selected_palette[3][4];
 	uint16_t fb[LCD_HEIGHT][LCD_WIDTH];
-	uint8_t Vram[0x2000];
+//	uint8_t Vram[0x2000];
 
-	uint8_t tile[8][8];
+	uint8_t tile[128][8][8];
 };
 
 uint8_t gb_rom_read(struct gb_s* gb, const uint_fast32_t addr)
@@ -608,13 +608,24 @@ void copy_vram(struct gb_s* gb, const uint8_t _vram[0x2000])
 {
 	struct priv_t* priv = (priv_t*)gb->direct.priv;
 
-	for (unsigned int x = 0; x < 0x2000; x++)
+	for (unsigned int i = 0; i <= 0x01F0; i++)
 	{
-		priv->Vram[x] = _vram[x];
+//		priv->Vram[x] = _vram[x];
 
 //		priv->Vram[x] = priv->selected_palette
 //			[(_vram[x] & LCD_PALETTE_ALL) >> 4]
 //		[_vram[x] & 3];
+
+		unsigned short tile = (i >> 4) & 511;
+//		unsigned short y = x / 2;
+		unsigned short y = (i >> 1) & 7;
+
+		unsigned bitIndex;
+		for (int x = 0; x < 8; x++) 
+		{
+			bitIndex = 1 << (7 - x);
+			priv->tile[tile][y][x] = ((_vram[i] & bitIndex) ? 1 : 0) + ((_vram[i + 1] & bitIndex) ? 2 : 0);
+		}
 	}
 
 /*	for (int i = 0; i < 16; i++)
@@ -737,37 +748,37 @@ public:
 		int x =0, y=0;
 		int count = 0;
 
-		for (unsigned int i = 0x1800; i < 0x1A10; i++, x++)
+		for (unsigned int i = 0x1800; i <= 0x1A5F; i++, x++)
 		{
-//			if (priv.Vram[i] == 0x7F)
-//			{
-				if (gb.vram[i] == 0x8E) DrawRect(x*4, y*4, 4, 4, olc::Pixel(0, 0, 100));
-				if (gb.vram[i] == 0x2F) DrawRect(x*4, y*4, 4, 4, olc::Pixel(0, 100, 0));
-//				if (gb.vram[i] == 0x02) DrawRect(x*4, y*4, 4, 4, olc::Pixel(0, 0, 255));
-//				if (gb.vram[i] == 0x03) DrawRect(x*4, y*4, 4, 4, olc::Pixel(0, 100, 0));
-//				if (gb.vram[i] == 0x04) DrawRect(x*4, y*4, 4, 4, olc::Pixel(0, 150, 0));
-//				if (gb.vram[i] == 0x05) DrawRect(x*4, y*4, 4, 4, olc::Pixel(0, 255, 0));
-//				if (gb.vram[i] == 0x06) DrawRect(x*4, y*4, 4, 4, olc::Pixel(100, 0, 0));
-//				if (priv.Vram[i] == 0x28) DrawRect(x, y, 4, 4, olc::Pixel(150, 0, 0));
-// 				if (priv.Vram[i] == 0x29) DrawRect(x, y, 4, 4, olc::Pixel(255, 0, 0));
-//				count++;
-//			}
-
 			if (x >= 32)
 			{
 				x = 0;
 				y++;
 			}
-		}
 
-/*		for (int y = 0; y < 8; y++)
-		{
-			for (x = 0; x < 8; x++)
+			if (gb.vram[i] == 0x0A)
 			{
-				if(priv.tile[x][y] != 0x00)
-					DrawRect(x*8, y*8, 4, 4, olc::Pixel(0, 0, 150));
+				for (int y1 = 0; y1 < 8; y1++)
+				{
+					for (int x1 = 0; x1< 8; x1++)
+					{
+						if (priv.tile[2][y1][x1] != 0x00)
+							Draw(x1, y1, olc::Pixel(0, 0, 150));
+						else
+							Draw(x1, y1, olc::Pixel(0, 150, 150));
+					}
+				}
 			}
-		}*/
+//				if (gb.vram[i] == 0x8E) DrawRect(x*4, y*4, 3, 3, olc::Pixel(0, 0, 100));
+//				if (gb.vram[i] == 0x2F) DrawRect(x*4, y*4, 3, 3, olc::Pixel(0, 100, 0));
+//				if (gb.vram[i] == 0x8C) DrawRect(x*4, y*4, 3, 3, olc::Pixel(100, 0, 0));
+//				if (gb.vram[i] == 0x41) DrawRect(x*4, y*4, 3, 3, olc::Pixel(0, 0, 200));
+//				if (gb.vram[i] == 0x04) DrawRect(x*4, y*4, 4, 4, olc::Pixel(0, 150, 0));
+//				if (gb.vram[i] == 0x05) DrawRect(x*4, y*4, 4, 4, olc::Pixel(0, 255, 0));
+//				if (gb.vram[i] == 0x06) DrawRect(x*4, y*4, 4, 4, olc::Pixel(100, 0, 0));
+//				if (priv.Vram[i] == 0x28) DrawRect(x, y, 4, 4, olc::Pixel(150, 0, 0));
+// 				if (priv.Vram[i] == 0x29) DrawRect(x, y, 4, 4, olc::Pixel(255, 0, 0));
+		}
 
 
 //		std::cout << count << std::endl;
@@ -831,7 +842,7 @@ int main()
 //		demo.Start();
 
 	GameBoyEmulator demo;
-	if (demo.Construct(160, 144, 4, 4))
+	if (demo.Construct(160, 144, 6, 6))
 		demo.Start();
 
 	return 0;
