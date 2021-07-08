@@ -785,7 +785,7 @@ public:
 		}
 
 
-		for (uint8_t s = NUM_SPRITES - 1; s != 0xFF; s--)
+		for (uint8_t s = 0; s < 40; s++)
 		{
 			uint8_t OY = gb.oam[4 * s + 0];
 			uint8_t OX = gb.oam[4 * s + 1];
@@ -797,13 +797,13 @@ public:
 
 			uint8_t py = gb.gb_reg.LY - OY + 16;
 
-			if (OF & OBJ_FLIP_Y)
-				py = (gb.gb_reg.LCDC & LCDC_OBJ_SIZE ? 15 : 7) - py;
+//			if (OF & OBJ_FLIP_Y)
+//				py = (gb.gb_reg.LCDC & LCDC_OBJ_SIZE ? 15 : 7) - py;
 
 			uint8_t t1 = gb.vram[VRAM_TILES_1 + OT * 0x10 + 2 * py];
 			uint8_t t2 = gb.vram[VRAM_TILES_1 + OT * 0x10 + 2 * py + 1];
 
-			uint8_t dir, start, end, shift;
+/*			uint8_t dir, start, end, shift;
 
 			if (OF & OBJ_FLIP_X)
 			{
@@ -821,7 +821,7 @@ public:
 			}
 
 			t1 >>= shift;
-			t2 >>= shift;
+			t2 >>= shift;*/
 
 			uint8_t c = (t1 & 0x1) | ((t2 & 0x1) << 1);
 
@@ -830,13 +830,13 @@ public:
 				for (int x1 = 0; x1 < 8; x1++)
 				{
 					if (priv.tile[c][y1][x1] == 0x01)
-						Draw(x1 + OX, y1 + OY, olc::Pixel(100, 100, 100));
+						Draw(x1 + OX - 8, y1 + OY - 16, olc::Pixel(0, 100, 100));
 					else if (priv.tile[c][y1][x1] == 0x02)
-						Draw(x1 + OX, y1 + OY, olc::Pixel(150, 150, 150));
+						Draw(x1 + OX - 8, y1 + OY - 16, olc::Pixel(0, 150, 150));
 					else if (priv.tile[c][y1][x1] == 0x03)
-						Draw(x1 + OX, y1 + OY, olc::Pixel(220, 220, 220));
+						Draw(x1 + OX - 8, y1 + OY - 16, olc::Pixel(0, 220, 220));
 					else
-						Draw(x1 + OX, y1 + OY, olc::Pixel(30, 30, 30));
+						Draw(x1 + OX - 8, y1 + OY - 16, olc::Pixel(0, 30, 30));
 				}
 			}
 		}
