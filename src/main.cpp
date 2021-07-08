@@ -336,9 +336,7 @@ struct priv_t
 	uint8_t* cart_ram;
 	uint16_t selected_palette[3][4];
 	uint16_t fb[LCD_HEIGHT][LCD_WIDTH];
-//	uint8_t Vram[0x2000];
-
-	uint8_t tile[128][8][8];
+	uint8_t tile[258][8][8];
 };
 
 uint8_t gb_rom_read(struct gb_s* gb, const uint_fast32_t addr)
@@ -608,7 +606,7 @@ void copy_vram(struct gb_s* gb, const uint8_t _vram[0x2000])
 {
 	struct priv_t* priv = (priv_t*)gb->direct.priv;
 
-	for (unsigned int i = 0; i <= 0x01F0; i++)
+	for (unsigned int i = 0; i <= 0x0FF0; i++)
 	{
 //		priv->Vram[x] = _vram[x];
 
@@ -756,19 +754,23 @@ public:
 				y++;
 			}
 
-			if (gb.vram[i] == 0x0A)
-			{
+//			if (gb.vram[i] == 0x0A)
+//			{
 				for (int y1 = 0; y1 < 8; y1++)
 				{
 					for (int x1 = 0; x1< 8; x1++)
 					{
-						if (priv.tile[2][y1][x1] != 0x00)
-							Draw(x1, y1, olc::Pixel(0, 0, 150));
+						if (priv.tile[gb.vram[i]][y1][x1] == 0x01)
+							Draw(x1 + x*8, y1 + y*8, olc::Pixel(0, 0, 100));
+						else if (priv.tile[gb.vram[i]][y1][x1] == 0x02)
+							Draw(x1 + x*8, y1 + y*8, olc::Pixel(0, 150, 150));
+						else if (priv.tile[gb.vram[i]][y1][x1] == 0x03)
+							Draw(x1 + x*8, y1 + y*8, olc::Pixel(120, 120, 120));
 						else
-							Draw(x1, y1, olc::Pixel(0, 150, 150));
+							Draw(x1 + x*8, y1 + y*8, olc::Pixel(0, 0, 0));
 					}
 				}
-			}
+//			}
 //				if (gb.vram[i] == 0x8E) DrawRect(x*4, y*4, 3, 3, olc::Pixel(0, 0, 100));
 //				if (gb.vram[i] == 0x2F) DrawRect(x*4, y*4, 3, 3, olc::Pixel(0, 100, 0));
 //				if (gb.vram[i] == 0x8C) DrawRect(x*4, y*4, 3, 3, olc::Pixel(100, 0, 0));
@@ -842,7 +844,7 @@ int main()
 //		demo.Start();
 
 	GameBoyEmulator demo;
-	if (demo.Construct(160, 144, 6, 6))
+	if (demo.Construct(160, 144, 4, 4))
 		demo.Start();
 
 	return 0;
