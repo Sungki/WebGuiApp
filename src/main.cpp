@@ -337,6 +337,8 @@ struct priv_t
 	uint16_t selected_palette[3][4];
 	uint16_t fb[LCD_HEIGHT][LCD_WIDTH];
 	uint8_t Vram[0x2000];
+
+	uint8_t tile[8][8];
 };
 
 uint8_t gb_rom_read(struct gb_s* gb, const uint_fast32_t addr)
@@ -606,7 +608,7 @@ void copy_vram(struct gb_s* gb, const uint8_t _vram[0x2000])
 {
 	struct priv_t* priv = (priv_t*)gb->direct.priv;
 
-	for (unsigned int x = 0; x < 0x2000; x++)
+	for (unsigned int x = 0; x < 2; x++)
 	{
 		priv->Vram[x] = _vram[x];
 
@@ -614,6 +616,12 @@ void copy_vram(struct gb_s* gb, const uint8_t _vram[0x2000])
 //			[(_vram[x] & LCD_PALETTE_ALL) >> 4]
 //		[_vram[x] & 3];
 	}
+
+	for (int i = 0; i < 8; i++)
+		for (int j = 0; j < 8; j++)
+		{
+			priv->tile[i][j] = 0x01;
+		}
 }
 
 class GameBoyEmulator : public olc::PixelGameEngine
@@ -720,7 +728,7 @@ public:
 		int x =0, y=0;
 		int count = 0;
 
-		for (unsigned int i = 0; i < 8192; i++, x++)
+/*		for (unsigned int i = 0; i < 8192; i++, x++)
 		{
 			if (x > LCD_WIDTH)
 			{
@@ -740,7 +748,17 @@ public:
 				if (priv.Vram[i] == 0x29) DrawRect(x, y, 4, 4, olc::Pixel(255, 0, 0));
 //				count++;
 //			}
+		}*/
+
+		for (int y = 0; y < 8; y++)
+		{
+			for (x = 0; x < 8; x++)
+			{
+				if(priv.tile[x][y] != 0x00)
+					DrawRect(x*8, y*8, 4, 4, olc::Pixel(0, 0, 150));
+			}
 		}
+
 
 //		std::cout << count << std::endl;
 //				if (priv.nameTable[y][x] == 0x21) DrawRect(x, y,1,1, olc::Pixel(0,0,100));
