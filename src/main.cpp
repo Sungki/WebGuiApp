@@ -608,7 +608,7 @@ void copy_vram(struct gb_s* gb, const uint8_t _vram[0x2000])
 {
 	struct priv_t* priv = (priv_t*)gb->direct.priv;
 
-	for (unsigned int x = 0; x < 2; x++)
+	for (unsigned int x = 0; x < 0x2000; x++)
 	{
 		priv->Vram[x] = _vram[x];
 
@@ -617,11 +617,20 @@ void copy_vram(struct gb_s* gb, const uint8_t _vram[0x2000])
 //		[_vram[x] & 3];
 	}
 
-	for (int i = 0; i < 8; i++)
-		for (int j = 0; j < 8; j++)
-		{
-			priv->tile[i][j] = 0x01;
+/*	for (int i = 0; i < 16; i++)
+	{
+		unsigned short y = i / 2;
+		unsigned bitIndex;
+		for (int x = 0; x < 8; x++) {
+			bitIndex = 1 << (7 - x);
+			priv->tile[y][x] = ((priv->Vram[i] & bitIndex) ? 1 : 0) + ((priv->Vram[i+1] & bitIndex) ? 2 : 0);
 		}
+	}*/
+
+//	bitIndex = 1 << (7 - x);
+//	unsigned char mask = 1 << (7 - pixel_index);
+//	unsigned char lsb = priv->Vram[0] & mask;
+//	unsigned char msb = priv->Vram[1] & mask;
 }
 
 class GameBoyEmulator : public olc::PixelGameEngine
