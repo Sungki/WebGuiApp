@@ -322,6 +322,8 @@ public:
 	}
 };*/
 
+#include <bitset>
+
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngineSDL.h"
 
@@ -615,7 +617,7 @@ void copy_vram(struct gb_s* gb, const uint8_t _vram[0x2000])
 //		[_vram[x] & 3];
 
 		unsigned short tile = (i >> 4) & 511;
-//		unsigned short y = x / 2;
+//		unsigned short y = i / 2;
 		unsigned short y = (i >> 1) & 7;
 
 		unsigned bitIndex;
@@ -668,7 +670,7 @@ public:
 		priv.rom = NULL;
 		priv.cart_ram = NULL;
 
-		if ((priv.rom = read_rom_to_ram("test.gb")) == NULL)
+		if ((priv.rom = read_rom_to_ram("tetris.gb")) == NULL)
 		{
 			std::cout << "error";
 		}
@@ -782,6 +784,62 @@ public:
 // 				if (priv.Vram[i] == 0x29) DrawRect(x, y, 4, 4, olc::Pixel(255, 0, 0));
 		}
 
+
+		for (uint8_t s = NUM_SPRITES - 1; s != 0xFF; s--)
+		{
+			uint8_t OY = gb.oam[4 * s + 0];
+			uint8_t OX = gb.oam[4 * s + 1];
+			uint8_t OT = gb.oam[4 * s + 2] & (gb.gb_reg.LCDC & LCDC_OBJ_SIZE ? 0xFE : 0xFF);
+			uint8_t OF = gb.oam[4 * s + 3];
+
+			if (OX == 0 || OX >= 168)
+				continue;
+
+			uint8_t py = gb.gb_reg.LY - OY + 16;
+
+			if (OF & OBJ_FLIP_Y)
+				py = (gb.gb_reg.LCDC & LCDC_OBJ_SIZE ? 15 : 7) - py;
+
+			uint8_t t1 = gb.vram[VRAM_TILES_1 + OT * 0x10 + 2 * py];
+			uint8_t t2 = gb.vram[VRAM_TILES_1 + OT * 0x10 + 2 * py + 1];
+
+			uint8_t dir, start, end, shift;
+
+			if (OF & OBJ_FLIP_X)
+			{
+				dir = 1;
+				start = (OX < 8 ? 0 : OX - 8);
+				end = MIN(OX, LCD_WIDTH);
+				shift = 8 - OX + start;
+			}
+			else
+			{
+				dir = -1;
+				start = MIN(OX, LCD_WIDTH) - 1;
+				end = (OX < 8 ? 0 : OX - 8) - 1;
+				shift = OX - (start + 1);
+			}
+
+			t1 >>= shift;
+			t2 >>= shift;
+
+			uint8_t c = (t1 & 0x1) | ((t2 & 0x1) << 1);
+
+			for (int y1 = 0; y1 < 8; y1++)
+			{
+				for (int x1 = 0; x1 < 8; x1++)
+				{
+					if (priv.tile[c][y1][x1] == 0x01)
+						Draw(x1 + OX, y1 + OY, olc::Pixel(100, 100, 100));
+					else if (priv.tile[c][y1][x1] == 0x02)
+						Draw(x1 + OX, y1 + OY, olc::Pixel(150, 150, 150));
+					else if (priv.tile[c][y1][x1] == 0x03)
+						Draw(x1 + OX, y1 + OY, olc::Pixel(220, 220, 220));
+					else
+						Draw(x1 + OX, y1 + OY, olc::Pixel(30, 30, 30));
+				}
+			}
+		}
 
 //		std::cout << count << std::endl;
 //				if (priv.nameTable[y][x] == 0x21) DrawRect(x, y,1,1, olc::Pixel(0,0,100));
