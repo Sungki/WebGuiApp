@@ -606,7 +606,7 @@ void copy_vram(struct gb_s* gb, const uint8_t _vram[0x2000])
 {
 	struct priv_t* priv = (priv_t*)gb->direct.priv;
 
-	for (unsigned int i = 0; i <= 0x0FF0; i++)
+	for (unsigned int i = 0; i <= 0x1000; i++)
 	{
 //		priv->Vram[x] = _vram[x];
 
@@ -668,7 +668,7 @@ public:
 		priv.rom = NULL;
 		priv.cart_ram = NULL;
 
-		if ((priv.rom = read_rom_to_ram("tetris.gb")) == NULL)
+		if ((priv.rom = read_rom_to_ram("test.gb")) == NULL)
 		{
 			std::cout << "error";
 		}
@@ -761,13 +761,13 @@ public:
 					for (int x1 = 0; x1< 8; x1++)
 					{
 						if (priv.tile[gb.vram[i]][y1][x1] == 0x01)
-							Draw(x1 + x*8, y1 + y*8, olc::Pixel(0, 0, 100));
+							Draw(x1 + x*8, y1 + y*8, olc::Pixel(100, 100, 100));
 						else if (priv.tile[gb.vram[i]][y1][x1] == 0x02)
-							Draw(x1 + x*8, y1 + y*8, olc::Pixel(0, 150, 150));
+							Draw(x1 + x*8, y1 + y*8, olc::Pixel(150, 150, 150));
 						else if (priv.tile[gb.vram[i]][y1][x1] == 0x03)
-							Draw(x1 + x*8, y1 + y*8, olc::Pixel(120, 120, 120));
+							Draw(x1 + x*8, y1 + y*8, olc::Pixel(220, 220, 220));
 						else
-							Draw(x1 + x*8, y1 + y*8, olc::Pixel(0, 0, 0));
+							Draw(x1 + x*8, y1 + y*8, olc::Pixel(30, 30, 30));
 					}
 				}
 //			}

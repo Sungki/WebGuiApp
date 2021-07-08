@@ -789,6 +789,11 @@ void __gb_write(struct gb_s* gb, const uint_fast16_t addr, const uint8_t val)
 	case 0x8:
 	case 0x9:
 		gb->vram[addr - VRAM_ADDR] = val;
+
+		if ((addr - VRAM_ADDR) < 0x1000)
+		{
+			gb->display.copy_vram(gb, gb->vram);
+		}
 		return;
 
 	case 0xA:
@@ -1461,7 +1466,7 @@ void __gb_draw_line(struct gb_s* gb)
 		}
 	}
 
-	gb->display.lcd_draw_line(gb, pixels, gb->gb_reg.LY);
+//	gb->display.lcd_draw_line(gb, pixels, gb->gb_reg.LY);
 }
 #endif
 
@@ -1558,7 +1563,7 @@ void __gb_step_cpu(struct gb_s* gb)
 		}
 		fclose(f);*/
 
-		gb->display.copy_vram(gb, gb->vram);
+//		gb->display.copy_vram(gb, gb->vram);
 	}
 
 	/* Obtain opcode */
