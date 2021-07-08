@@ -1558,7 +1558,7 @@ void __gb_step_cpu(struct gb_s* gb)
 		}
 		fclose(f);*/
 
-		gb->display.copy_vram(gb, gb->vram);
+//		gb->display.copy_vram(gb, gb->vram);
 	}
 
 	/* Obtain opcode */

@@ -746,13 +746,13 @@ public:
 			}
 //			if (priv.Vram[i] == 0x7F)
 //			{
-				if (priv.Vram[i] == 0x8C) DrawRect(x*4, y*4, 4, 4, olc::Pixel(0, 0, 100));
-				if (priv.Vram[i] == 0x3A) DrawRect(x*4, y*4,4,4, olc::Pixel(0, 0, 150));
-				if (priv.Vram[i] == 0x3B) DrawRect(x*4, y*4, 4, 4, olc::Pixel(0, 0, 255));
-				if (priv.Vram[i] == 0x62) DrawRect(x*4, y*4, 4, 4, olc::Pixel(0, 100, 0));
-				if (priv.Vram[i] == 0x63) DrawRect(x*4, y*4, 4, 4, olc::Pixel(0, 150, 0));
-				if (priv.Vram[i] == 0x64) DrawRect(x*4, y*4, 4, 4, olc::Pixel(0, 255, 0));
-				if (priv.Vram[i] == 0x65) DrawRect(x*4, y*4, 4, 4, olc::Pixel(100, 0, 0));
+				if (gb.vram[i] == 0x8C) DrawRect(x*4, y*4, 4, 4, olc::Pixel(0, 0, 100));
+				if (gb.vram[i] == 0x3A) DrawRect(x*4, y*4, 4, 4, olc::Pixel(0, 0, 150));
+				if (gb.vram[i] == 0x3B) DrawRect(x*4, y*4, 4, 4, olc::Pixel(0, 0, 255));
+				if (gb.vram[i] == 0x62) DrawRect(x*4, y*4, 4, 4, olc::Pixel(0, 100, 0));
+				if (gb.vram[i] == 0x63) DrawRect(x*4, y*4, 4, 4, olc::Pixel(0, 150, 0));
+				if (gb.vram[i] == 0x64) DrawRect(x*4, y*4, 4, 4, olc::Pixel(0, 255, 0));
+				if (gb.vram[i] == 0x65) DrawRect(x*4, y*4, 4, 4, olc::Pixel(100, 0, 0));
 //				if (priv.Vram[i] == 0x28) DrawRect(x, y, 4, 4, olc::Pixel(150, 0, 0));
 // 				if (priv.Vram[i] == 0x29) DrawRect(x, y, 4, 4, olc::Pixel(255, 0, 0));
 //				count++;
