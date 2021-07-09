@@ -906,7 +906,7 @@ void print_tile(unsigned char* bytes, int x, int y, int l, char* data) {
 
 char* pixels = NULL;
 
-SDL_Surface* read_rom(const char* filename, int doff, int* dout) {
+void read_rom(const char* filename, int doff, int* dout) {
 	int w, h, i;
 
 	unsigned char bytes[] = { 0x7C,0x7C,0x00,0xC6,0xC6,0x00,0x00,0xFE,0xC6,0xC6,0x00,0xC6,0xC6,0x00,0x00,0x00 };
@@ -914,23 +914,34 @@ SDL_Surface* read_rom(const char* filename, int doff, int* dout) {
 	w = 8 * cols;
 	h = 8 * rows;
 
-	pixels = (char*)malloc(w * h * 8);
+	if (pixels == NULL)
+	{
+		pixels = (char*)malloc(w * h * 8);
+	}
+
 	for (i = 0; i < w * h * 8; i++) {
 		pixels[i] = 0; //(i*0xff)/(w*h*8);
 	}
 
 	FILE* fptr;
 	int er;
-	if (!(fptr = fopen(filename, "rb"))) { puts("fopen fail"); return NULL; }
+	if (!(fptr = fopen(filename, "rb"))) { puts("fopen fail");}
 	int size;// = 65536;
 
 	fseek(fptr, 0, SEEK_END);
 	size = ftell(fptr);
 	fseek(fptr, 0, SEEK_SET);
 
-	unsigned char* data = (unsigned char*)malloc(size);
+	unsigned char* data = NULL;
 
-	if ((er = fread(data, size, 1, fptr)) != 1) { printf("fread fail %d\n", er); return NULL; }
+	if(data== NULL)
+		data = (unsigned char*)malloc(size);
+
+//	for (i = 0; i < size; i++) {
+//		data[i] = 0;
+//	}
+
+	if ((er = fread(data, size, 1, fptr)) != 1) { printf("fread fail %d\n", er);}
 
 	int x = 0, y = 0, d = 0;
 	for (d = doff; d < size; d += 16) {
@@ -947,9 +958,9 @@ SDL_Surface* read_rom(const char* filename, int doff, int* dout) {
 	//if(d < size)
 	//  printf("didn't show everything! %d/%d\n", d, size);
 
-	return SDL_CreateRGBSurfaceFrom(pixels, w, h,
-		8, w,
-		0xff, 0xff, 0xff, 0);
+//	return SDL_CreateRGBSurfaceFrom(pixels, w, h,
+//		8, w,
+//		0xff, 0xff, 0xff, 0);
 }
 
 int main(int argc, char** argv)
@@ -1042,7 +1053,7 @@ cols * 8, rows * 8,
 //	SDL_Surface* tiles = NULL;
 
 	int oldd, d;
-	oldd = 0;
+	oldd = 20000;
 //	read_rom("tetris.gb", 0, &d);
 
 
@@ -1131,21 +1142,25 @@ cols * 8, rows * 8,
 				case SDLK_UP:
 					gb.direct.joypad_bits.up = 0;
 					oldd = 0;
+					read_rom("tetris.gb", oldd, &d);
 					break;
 
 				case SDLK_RIGHT:
 					gb.direct.joypad_bits.right = 0;
-					oldd++;
+					oldd+=100;
+					read_rom("tetris.gb", oldd, &d);
 					break;
 
 				case SDLK_DOWN:
 					gb.direct.joypad_bits.down = 0;
 					oldd = d;
+					read_rom("tetris.gb", oldd, &d);
 					break;
 
 				case SDLK_LEFT:
 					gb.direct.joypad_bits.left = 0;
-					if (oldd > 0) oldd--;
+					if (oldd > 0) oldd-=100;
+					read_rom("tetris.gb", oldd, &d);
 					break;
 
 				case SDLK_SPACE:
@@ -1300,8 +1315,6 @@ cols * 8, rows * 8,
 		}
 
 		fast_mode_timer = fast_mode;*/
-
-		read_rom("tetris.gb", oldd, &d);
 
 		SDL_UpdateTexture(texture, NULL, pixels, LCD_WIDTH * sizeof(uint16_t));
 //		SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, tiles);
