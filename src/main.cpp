@@ -756,32 +756,20 @@ public:
 				y++;
 			}
 
-//			if (gb.vram[i] == 0x0A)
-//			{
-				for (int y1 = 0; y1 < 8; y1++)
+			for (int y1 = 0; y1 < 8; y1++)
+			{
+				for (int x1 = 0; x1< 8; x1++)
 				{
-					for (int x1 = 0; x1< 8; x1++)
-					{
-						if (priv.tile[gb.vram[i]][y1][x1] == 0x01)
-							Draw(x1 + x*8, y1 + y*8, olc::Pixel(100, 100, 100));
-						else if (priv.tile[gb.vram[i]][y1][x1] == 0x02)
-							Draw(x1 + x*8, y1 + y*8, olc::Pixel(150, 150, 150));
-						else if (priv.tile[gb.vram[i]][y1][x1] == 0x03)
-							Draw(x1 + x*8, y1 + y*8, olc::Pixel(220, 220, 220));
-						else
-							Draw(x1 + x*8, y1 + y*8, olc::Pixel(30, 30, 30));
-					}
+					if (priv.tile[gb.vram[i]][y1][x1] == 0x01)
+						Draw(x1 + x*8, y1 + y*8, olc::Pixel(100, 100, 100));
+					else if (priv.tile[gb.vram[i]][y1][x1] == 0x02)
+						Draw(x1 + x*8, y1 + y*8, olc::Pixel(150, 150, 150));
+					else if (priv.tile[gb.vram[i]][y1][x1] == 0x03)
+						Draw(x1 + x*8, y1 + y*8, olc::Pixel(220, 220, 220));
+					else
+						Draw(x1 + x*8, y1 + y*8, olc::Pixel(30, 30, 30));
 				}
-//			}
-//				if (gb.vram[i] == 0x8E) DrawRect(x*4, y*4, 3, 3, olc::Pixel(0, 0, 100));
-//				if (gb.vram[i] == 0x2F) DrawRect(x*4, y*4, 3, 3, olc::Pixel(0, 100, 0));
-//				if (gb.vram[i] == 0x8C) DrawRect(x*4, y*4, 3, 3, olc::Pixel(100, 0, 0));
-//				if (gb.vram[i] == 0x41) DrawRect(x*4, y*4, 3, 3, olc::Pixel(0, 0, 200));
-//				if (gb.vram[i] == 0x04) DrawRect(x*4, y*4, 4, 4, olc::Pixel(0, 150, 0));
-//				if (gb.vram[i] == 0x05) DrawRect(x*4, y*4, 4, 4, olc::Pixel(0, 255, 0));
-//				if (gb.vram[i] == 0x06) DrawRect(x*4, y*4, 4, 4, olc::Pixel(100, 0, 0));
-//				if (priv.Vram[i] == 0x28) DrawRect(x, y, 4, 4, olc::Pixel(150, 0, 0));
-// 				if (priv.Vram[i] == 0x29) DrawRect(x, y, 4, 4, olc::Pixel(255, 0, 0));
+			}
 		}
 
 
@@ -841,17 +829,6 @@ public:
 			}
 		}
 
-//		std::cout << count << std::endl;
-//				if (priv.nameTable[y][x] == 0x21) DrawRect(x, y,1,1, olc::Pixel(0,0,100));
-/*				if (priv.nameTable[y][x] == 0x22) DrawRect(x, y,4,4, olc::Pixel(0, 0, 150));
-				if (priv.nameTable[y][x] == 0x23) DrawRect(x, y, 4, 4, olc::Pixel(0, 0, 255));
-				if (priv.nameTable[y][x] == 0x24) DrawRect(x, y, 4, 4, olc::Pixel(0, 100, 0));
-				if (priv.nameTable[y][x] == 0x25) DrawRect(x, y, 4, 4, olc::Pixel(0, 150, 0));
-				if (priv.nameTable[y][x] == 0x26) DrawRect(x, y, 4, 4, olc::Pixel(0, 255, 0));
-				if (priv.nameTable[y][x] == 0x27) DrawRect(x, y, 4, 4, olc::Pixel(100, 0, 0));
-				if (priv.nameTable[y][x] == 0x28) DrawRect(x, y, 4, 4, olc::Pixel(150, 0, 0));
-				if (priv.nameTable[y][x] == 0x29) DrawRect(x, y, 4, 4, olc::Pixel(255, 0, 0));*/
-
 //		SDL_UpdateTexture(texture, NULL, &priv.nameTable, LCD_WIDTH * sizeof(uint16_t));
 //		SDL_UpdateTexture(texture, NULL, &priv.fb, LCD_WIDTH * sizeof(uint16_t));
 //		SDL_RenderClear(renderer);
@@ -894,7 +871,7 @@ public:
 		m_Emulator->KeyReleased(key);
 	}*/
 };
-
+/*
 int main()
 {
 //	StarField demo;
@@ -906,9 +883,75 @@ int main()
 		demo.Start();
 
 	return 0;
+}*/
+
+#define  cols 64
+#define  rows 64
+
+void print_tile(unsigned char* bytes, int x, int y, int l, char* data) {
+	int i, j;
+	int b1, b2;
+	int b1_bit, b2_bit;
+	for (i = 0; i < 16; i += 2) {
+		b1 = bytes[i];
+		b2 = bytes[i + 1];
+		for (j = 0; j < 8; j++) {
+			b1_bit = !(!(b1 & (0x80 >> j)));
+			b2_bit = !(!(b2 & (0x80 >> j)));
+			data[(x + j) + (y + i / 2) * l] = 0xff - ((2 * b2_bit + b1_bit)) * (0xff / 4);
+		}
+		//puts("");
+	}
 }
 
-/*
+char* pixels = NULL;
+
+SDL_Surface* read_rom(const char* filename, int doff, int* dout) {
+	int w, h, i;
+
+	unsigned char bytes[] = { 0x7C,0x7C,0x00,0xC6,0xC6,0x00,0x00,0xFE,0xC6,0xC6,0x00,0xC6,0xC6,0x00,0x00,0x00 };
+
+	w = 8 * cols;
+	h = 8 * rows;
+
+	pixels = (char*)malloc(w * h * 8);
+	for (i = 0; i < w * h * 8; i++) {
+		pixels[i] = 0; //(i*0xff)/(w*h*8);
+	}
+
+	FILE* fptr;
+	int er;
+	if (!(fptr = fopen(filename, "rb"))) { puts("fopen fail"); return NULL; }
+	int size;// = 65536;
+
+	fseek(fptr, 0, SEEK_END);
+	size = ftell(fptr);
+	fseek(fptr, 0, SEEK_SET);
+
+	unsigned char* data = (unsigned char*)malloc(size);
+
+	if ((er = fread(data, size, 1, fptr)) != 1) { printf("fread fail %d\n", er); return NULL; }
+
+	int x = 0, y = 0, d = 0;
+	for (d = doff; d < size; d += 16) {
+		print_tile(data + d, x * 8, y * 8, w, pixels);
+		x++;
+		if (x >= cols) {
+			x = 0;
+			y++;
+		}
+		if (y >= rows) break;
+	}
+	d += 16;
+	*dout = d;
+	//if(d < size)
+	//  printf("didn't show everything! %d/%d\n", d, size);
+
+	return SDL_CreateRGBSurfaceFrom(pixels, w, h,
+		8, w,
+		0xff, 0xff, 0xff, 0);
+}
+
 int main(int argc, char** argv)
 {
 	struct gb_s gb;
@@ -939,17 +982,16 @@ int main(int argc, char** argv)
 		snprintf(buf, sizeof(buf),
 			"Unable to initialise SDL2: %s\n", SDL_GetError());
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", buf, NULL);
-		ret = EXIT_FAILURE;
-		goto out;
 	}
 
 	window = SDL_CreateWindow("Peanut-SDL: Opening File",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		LCD_WIDTH * 2, LCD_HEIGHT * 2,
+//		LCD_WIDTH * 2, LCD_HEIGHT * 2,
+cols * 8, rows * 8,
 		SDL_WINDOW_RESIZABLE | SDL_WINDOW_INPUT_FOCUS);
 
-	if ((priv.rom = read_rom_to_ram("tetris.gb")) == NULL)
+/*	if ((priv.rom = read_rom_to_ram("tetris.gb")) == NULL)
 	{
 		printf("%d: %s\n", __LINE__, strerror(errno));
 		ret = EXIT_FAILURE;
@@ -960,7 +1002,7 @@ int main(int argc, char** argv)
 		&gb_error, &priv);
 
 
-	gb_init_lcd(&gb, &lcd_draw_line);
+	gb_init_lcd(&gb, &lcd_draw_line, &copy_vram);*/
 
 	renderer = SDL_CreateRenderer(window, -1,
 		SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
@@ -968,20 +1010,17 @@ int main(int argc, char** argv)
 	if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) < 0)
 	{
 		printf("Renderer could not draw color: %s\n", SDL_GetError());
-		ret = EXIT_FAILURE;
-		goto out;
 	}
 
 	if (SDL_RenderClear(renderer) < 0)
 	{
 		printf("Renderer could not clear: %s\n", SDL_GetError());
-		ret = EXIT_FAILURE;
-		goto out;
 	}
 
 	SDL_RenderPresent(renderer);
 
-	SDL_RenderSetLogicalSize(renderer, LCD_WIDTH, LCD_HEIGHT);
+//	SDL_RenderSetLogicalSize(renderer, LCD_WIDTH, LCD_HEIGHT);
+	SDL_RenderSetLogicalSize(renderer, cols * 8, rows * 8);
 	SDL_RenderSetIntegerScale(renderer, (SDL_bool)1);
 
 	texture = SDL_CreateTexture(renderer,
@@ -996,7 +1035,22 @@ int main(int argc, char** argv)
 		goto out;
 	}
 
-	auto_assign_palette(&priv, gb_colour_hash(&gb));
+//	auto_assign_palette(&priv, gb_colour_hash(&gb));
+
+
+
+//	SDL_Surface* tiles = NULL;
+
+	int oldd, d;
+	oldd = 0;
+//	read_rom("tetris.gb", 0, &d);
+
+
+//	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, tiles);
+
+//	SDL_RenderCopy(renderer, texture, NULL, NULL);
+//	SDL_RenderPresent(renderer);
+//	SDL_DestroyTexture(texture);
 
 	while (SDL_QuitRequested() == SDL_FALSE)
 	{
@@ -1076,18 +1130,22 @@ int main(int argc, char** argv)
 
 				case SDLK_UP:
 					gb.direct.joypad_bits.up = 0;
+					oldd = 0;
 					break;
 
 				case SDLK_RIGHT:
 					gb.direct.joypad_bits.right = 0;
+					oldd++;
 					break;
 
 				case SDLK_DOWN:
 					gb.direct.joypad_bits.down = 0;
+					oldd = d;
 					break;
 
 				case SDLK_LEFT:
 					gb.direct.joypad_bits.left = 0;
+					if (oldd > 0) oldd--;
 					break;
 
 				case SDLK_SPACE:
@@ -1225,7 +1283,7 @@ int main(int argc, char** argv)
 			}
 		}
 
-		gb_run_frame(&gb);
+/*		gb_run_frame(&gb);
 
 		rtc_timer += target_speed_ms / fast_mode;
 
@@ -1241,12 +1299,23 @@ int main(int argc, char** argv)
 			continue;
 		}
 
-		fast_mode_timer = fast_mode;
+		fast_mode_timer = fast_mode;*/
 
-		SDL_UpdateTexture(texture, NULL, &priv.fb, LCD_WIDTH * sizeof(uint16_t));
+		read_rom("tetris.gb", oldd, &d);
+
+		SDL_UpdateTexture(texture, NULL, pixels, LCD_WIDTH * sizeof(uint16_t));
+//		SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, tiles);
 		SDL_RenderClear(renderer);
 		SDL_RenderCopy(renderer, texture, NULL, NULL);
 		SDL_RenderPresent(renderer);
+//		SDL_DestroyTexture(texture);
+
+		std::cout << oldd << std::endl;
+
+//		SDL_UpdateTexture(texture, NULL, &priv.fb, LCD_WIDTH * sizeof(uint16_t));
+//		SDL_RenderClear(renderer);
+//		SDL_RenderCopy(renderer, texture, NULL, NULL);
+//		SDL_RenderPresent(renderer);
 
 		new_ticks = SDL_GetTicks();
 
@@ -1316,4 +1385,4 @@ out:
 		free(rom_file_name);
 
 	return ret;
-}*/
+}

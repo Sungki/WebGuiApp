@@ -1466,7 +1466,7 @@ void __gb_draw_line(struct gb_s* gb)
 		}
 	}
 
-//	gb->display.lcd_draw_line(gb, pixels, gb->gb_reg.LY);
+	gb->display.lcd_draw_line(gb, pixels, gb->gb_reg.LY);
 }
 #endif
 
@@ -3546,7 +3546,7 @@ void __gb_step_cpu(struct gb_s* gb)
 	{
 		gb->lcd_mode = LCD_TRANSFER;
 #if ENABLE_LCD
-//		__gb_draw_line(gb);
+		__gb_draw_line(gb);
 #endif
 
 	}
