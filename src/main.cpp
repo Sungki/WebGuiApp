@@ -332,6 +332,8 @@ public:
 
 #include "peanut_gb.h"
 
+uint8_t tileRom[512][8][8];
+
 struct priv_t
 {
 	uint8_t* rom;
@@ -382,6 +384,22 @@ uint8_t* read_rom_to_ram(const char* file_name)
 	}
 
 	fclose(rom_file);
+
+
+	for (unsigned int i = 0; i <= 0x8000; i++)
+	{
+		unsigned short tile = (i >> 4) & 511;
+		unsigned short y = (i >> 1) & 7;
+		unsigned bitIndex;
+
+		for (int x = 0; x < 8; x++)
+		{
+			bitIndex = 1 << (7 - x);
+			tileRom[tile][y][x] = ((rom[i] & bitIndex) ? 1 : 0) + ((rom[i + 1] & bitIndex) ? 2 : 0);
+		}
+	}
+
+
 	return rom;
 }
 
@@ -608,7 +626,6 @@ void copy_vram(struct gb_s* gb, const uint8_t _vram[0x2000])
 {
 	struct priv_t* priv = (priv_t*)gb->direct.priv;
 
-//	for (unsigned int i = 0; i <= 0x1000; i++)
 	for (unsigned int i = 0; i <= 0x1000; i++)
 	{
 //		priv->Vram[x] = _vram[x];
@@ -748,7 +765,7 @@ public:
 
 		int x =0, y=0;
 
-		for (int i = 0; i < 258; i++, x++)
+		for (int i = 0; i < 512; i++, x++)
 		{
 			if (x >= 32)
 			{
@@ -760,17 +777,18 @@ public:
 			{
 				for (int x1 = 0; x1 < 8; x1++)
 				{
-					if (priv.tile[i][y1][x1] == 0x01)
+					if (tileRom[i][y1][x1] == 0x01)
 						Draw(x1 + x * 8, y1 + y * 8, olc::Pixel(100, 100, 100));
-					else if (priv.tile[i][y1][x1] == 0x02)
+					else if (tileRom[i][y1][x1] == 0x02)
 						Draw(x1 + x * 8, y1 + y * 8, olc::Pixel(150, 150, 150));
-					else if (priv.tile[i][y1][x1] == 0x03)
+					else if (tileRom[i][y1][x1] == 0x03)
 						Draw(x1 + x * 8, y1 + y * 8, olc::Pixel(220, 220, 220));
 					else
 						Draw(x1 + x * 8, y1 + y * 8, olc::Pixel(30, 30, 30));
 				}
 			}
 		}
+
 
 /*		int x =0, y=0;
 		int count = 0;
@@ -906,8 +924,9 @@ int main()
 //		demo.Start();
 
 	GameBoyEmulator demo;
-	if (demo.Construct(160, 144, 4, 4))
-		demo.Start();
+//	if (demo.Construct(160, 144, 4, 4))
+	if (demo.Construct(300, 200, 4, 4))
+			demo.Start();
 
 	return 0;
 }
