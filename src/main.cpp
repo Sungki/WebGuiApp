@@ -884,7 +884,7 @@ int main()
 
 	return 0;
 }*/
-
+/*
 #define  cols 64
 #define  rows 64
 
@@ -905,6 +905,7 @@ void print_tile(unsigned char* bytes, int x, int y, int l, char* data) {
 }
 
 char* pixels = NULL;
+unsigned char* data = NULL;
 
 void read_rom(const char* filename, int doff, int* dout) {
 	int w, h, i;
@@ -932,7 +933,7 @@ void read_rom(const char* filename, int doff, int* dout) {
 	size = ftell(fptr);
 	fseek(fptr, 0, SEEK_SET);
 
-	unsigned char* data = NULL;
+//	unsigned char* data = NULL;
 
 	if(data== NULL)
 		data = (unsigned char*)malloc(size);
@@ -961,6 +962,27 @@ void read_rom(const char* filename, int doff, int* dout) {
 //	return SDL_CreateRGBSurfaceFrom(pixels, w, h,
 //		8, w,
 //		0xff, 0xff, 0xff, 0);
+}
+
+void move_map(int doff, int* dout)
+{
+	int w, h, i;
+
+	w = 8 * cols;
+	h = 8 * rows;
+
+	int x = 0, y = 0, d = 0;
+	for (d = doff; d < 65536; d += 16) {
+		print_tile(data + d, x * 8, y * 8, w, pixels);
+		x++;
+		if (x >= cols) {
+			x = 0;
+			y++;
+		}
+		if (y >= rows) break;
+	}
+	d += 16;
+	*dout = d;
 }
 
 int main(int argc, char** argv)
@@ -1015,7 +1037,7 @@ cols * 8, rows * 8,
 
 	gb_init_lcd(&gb, &lcd_draw_line, &copy_vram);*/
 
-	renderer = SDL_CreateRenderer(window, -1,
+/*	renderer = SDL_CreateRenderer(window, -1,
 		SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
 
 	if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) < 0)
@@ -1053,8 +1075,8 @@ cols * 8, rows * 8,
 //	SDL_Surface* tiles = NULL;
 
 	int oldd, d;
-	oldd = 20000;
-//	read_rom("tetris.gb", 0, &d);
+	oldd = 0;
+	read_rom("tetris.gb", 0, &d);
 
 
 //	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, tiles);
@@ -1142,25 +1164,25 @@ cols * 8, rows * 8,
 				case SDLK_UP:
 					gb.direct.joypad_bits.up = 0;
 					oldd = 0;
-					read_rom("tetris.gb", oldd, &d);
+					move_map(oldd, &d);
 					break;
 
 				case SDLK_RIGHT:
 					gb.direct.joypad_bits.right = 0;
 					oldd+=100;
-					read_rom("tetris.gb", oldd, &d);
+					move_map(oldd, &d);
 					break;
 
 				case SDLK_DOWN:
 					gb.direct.joypad_bits.down = 0;
 					oldd = d;
-					read_rom("tetris.gb", oldd, &d);
+					move_map(oldd, &d);
 					break;
 
 				case SDLK_LEFT:
 					gb.direct.joypad_bits.left = 0;
 					if (oldd > 0) oldd-=100;
-					read_rom("tetris.gb", oldd, &d);
+					move_map(oldd, &d);
 					break;
 
 				case SDLK_SPACE:
@@ -1316,7 +1338,7 @@ cols * 8, rows * 8,
 
 		fast_mode_timer = fast_mode;*/
 
-		SDL_UpdateTexture(texture, NULL, pixels, LCD_WIDTH * sizeof(uint16_t));
+/*		SDL_UpdateTexture(texture, NULL, pixels, LCD_WIDTH * sizeof(uint16_t));
 //		SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, tiles);
 		SDL_RenderClear(renderer);
 		SDL_RenderCopy(renderer, texture, NULL, NULL);
@@ -1398,4 +1420,4 @@ out:
 		free(rom_file_name);
 
 	return ret;
-}
+}*/
