@@ -332,7 +332,7 @@ public:
 
 #include "peanut_gb.h"
 
-uint8_t tileRom[512][8][8];
+uint8_t tileRom[2048][8][8];
 
 struct priv_t
 {
@@ -386,9 +386,10 @@ uint8_t* read_rom_to_ram(const char* file_name)
 	fclose(rom_file);
 
 
-	for (unsigned int i = 0; i <= 0x8000; i++)
+	for (unsigned int i = 0; i <= rom_size; i++)
 	{
-		unsigned short tile = (i >> 4) & 511;
+//		unsigned short tile = (i >> 4) & 511;
+		unsigned short tile = (i >> 4) & 2047;
 		unsigned short y = (i >> 1) & 7;
 		unsigned bitIndex;
 
@@ -398,7 +399,6 @@ uint8_t* read_rom_to_ram(const char* file_name)
 			tileRom[tile][y][x] = ((rom[i] & bitIndex) ? 1 : 0) + ((rom[i + 1] & bitIndex) ? 2 : 0);
 		}
 	}
-
 
 	return rom;
 }
@@ -662,6 +662,8 @@ void copy_vram(struct gb_s* gb, const uint8_t _vram[0x2000])
 //	unsigned char msb = priv->Vram[1] & mask;
 }
 
+int temp = 0;
+
 class GameBoyEmulator : public olc::PixelGameEngine
 {
 public:
@@ -761,11 +763,24 @@ public:
 
 		gb_run_frame(&gb);
 
+
+		
+		if (GetKey(olc::Key::RIGHT).bPressed)
+		{
+			temp += 512;
+		}
+		if (GetKey(olc::Key::LEFT).bPressed)
+		{
+			temp -= 512;
+			if (temp < 0) temp = 0;
+		}
+
+
 		Clear(olc::BLACK);
 
 		int x =0, y=0;
 
-		for (int i = 0; i < 512; i++, x++)
+		for (int i = temp; i < temp*2; i++, x++)
 		{
 			if (x >= 32)
 			{
@@ -925,7 +940,7 @@ int main()
 
 	GameBoyEmulator demo;
 //	if (demo.Construct(160, 144, 4, 4))
-	if (demo.Construct(300, 200, 4, 4))
+	if (demo.Construct(300, 250, 4, 4))
 			demo.Start();
 
 	return 0;
