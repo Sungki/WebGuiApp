@@ -608,6 +608,7 @@ void copy_vram(struct gb_s* gb, const uint8_t _vram[0x2000])
 {
 	struct priv_t* priv = (priv_t*)gb->direct.priv;
 
+//	for (unsigned int i = 0; i <= 0x1000; i++)
 	for (unsigned int i = 0; i <= 0x1000; i++)
 	{
 //		priv->Vram[x] = _vram[x];
@@ -746,6 +747,32 @@ public:
 		Clear(olc::BLACK);
 
 		int x =0, y=0;
+
+		for (int i = 0; i < 258; i++, x++)
+		{
+			if (x >= 32)
+			{
+				x = 0;
+				y++;
+			}
+
+			for (int y1 = 0; y1 < 8; y1++)
+			{
+				for (int x1 = 0; x1 < 8; x1++)
+				{
+					if (priv.tile[i][y1][x1] == 0x01)
+						Draw(x1 + x * 8, y1 + y * 8, olc::Pixel(100, 100, 100));
+					else if (priv.tile[i][y1][x1] == 0x02)
+						Draw(x1 + x * 8, y1 + y * 8, olc::Pixel(150, 150, 150));
+					else if (priv.tile[i][y1][x1] == 0x03)
+						Draw(x1 + x * 8, y1 + y * 8, olc::Pixel(220, 220, 220));
+					else
+						Draw(x1 + x * 8, y1 + y * 8, olc::Pixel(30, 30, 30));
+				}
+			}
+		}
+
+/*		int x =0, y=0;
 		int count = 0;
 
 		for (unsigned int i = 0x1800; i <= 0x1A5F; i++, x++)
@@ -811,7 +838,7 @@ public:
 			t1 >>= shift;
 			t2 >>= shift;*/
 
-			uint8_t c = (t1 & 0x1) | ((t2 & 0x1) << 1);
+/*			uint8_t c = (t1 & 0x1) | ((t2 & 0x1) << 1);
 
 			for (int y1 = 0; y1 < 8; y1++)
 			{
@@ -827,7 +854,7 @@ public:
 						Draw(x1 + OX - 8, y1 + OY - 16, olc::Pixel(0, 30, 30));
 				}
 			}
-		}
+		}*/
 
 //		SDL_UpdateTexture(texture, NULL, &priv.nameTable, LCD_WIDTH * sizeof(uint16_t));
 //		SDL_UpdateTexture(texture, NULL, &priv.fb, LCD_WIDTH * sizeof(uint16_t));
@@ -871,7 +898,7 @@ public:
 		m_Emulator->KeyReleased(key);
 	}*/
 };
-/*
+
 int main()
 {
 //	StarField demo;
@@ -883,7 +910,8 @@ int main()
 		demo.Start();
 
 	return 0;
-}*/
+}
+
 /*
 #define  cols 64
 #define  rows 64
