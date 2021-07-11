@@ -332,7 +332,7 @@ public:
 
 #include "peanut_gb.h"
 
-uint8_t tileRom[2048][8][8];
+uint8_t tileRom[10240][8][8];
 
 struct priv_t
 {
@@ -389,7 +389,7 @@ uint8_t* read_rom_to_ram(const char* file_name)
 	for (unsigned int i = 0; i <= rom_size; i++)
 	{
 //		unsigned short tile = (i >> 4) & 511;
-		unsigned short tile = (i >> 4) & 2047;
+		unsigned short tile = (i >> 4) & 10239;
 		unsigned short y = (i >> 1) & 7;
 		unsigned bitIndex;
 
@@ -690,7 +690,7 @@ public:
 		priv.rom = NULL;
 		priv.cart_ram = NULL;
 
-		if ((priv.rom = read_rom_to_ram("tetris.gb")) == NULL)
+		if ((priv.rom = read_rom_to_ram("game.gb")) == NULL)
 		{
 			std::cout << "error";
 		}
