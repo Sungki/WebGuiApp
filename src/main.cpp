@@ -748,6 +748,39 @@ public:
 		return true;
 	}
 
+	std::string hex(uint32_t n, uint8_t d)
+	{
+		std::string s(d, '0');
+		for (int i = d - 1; i >= 0; i--, n >>= 4)
+			s[i] = "0123456789ABCDEF"[n & 0xF];
+		return s;
+	};
+
+	void DrawRam(int x, int y, uint16_t nAddr, int nRows, int nColumns)
+	{
+		int nRamX = x, nRamY = y;
+		for (int row = 0; row < nRows; row++)
+		{
+			std::string sOffset = "$" + hex(nAddr, 4) + ":";
+			for (int col = 0; col < nColumns; col++)
+			{
+				sOffset += " " + hex(gb.gb_rom_read(&gb,nAddr), 2);
+				nAddr += 1;
+			}
+			DrawString(nRamX, nRamY, sOffset);
+			nRamY += 10;
+		}
+	}
+
+	void DrawCpu(int x, int y)
+	{
+		std::string status = "STATUS: ";
+		DrawString(x, y, "STATUS:", olc::WHITE);
+		DrawString(x, y + 10, "PC: $" + hex(gb.cpu_reg.pc, 4));
+		DrawString(x, y + 20, "A: $" + hex(gb.cpu_reg.a, 2) + "  [" + std::to_string(gb.cpu_reg.a) + "]");
+		DrawString(x, y + 50, "Stack P: $" + hex(gb.cpu_reg.sp, 4));
+	}
+
 	void DrawCode(int x, int y, int nLines)
 	{
 		auto it_a = mapAsm.find(gb.cpu_reg.pc);
@@ -844,7 +877,7 @@ public:
 		}
 
 
-		Clear(olc::BLACK);
+		Clear(olc::DARK_BLUE);
 
 		int x =0, y=0;
 
@@ -963,9 +996,14 @@ public:
 //		SDL_RenderCopy(renderer, texture, NULL, NULL);
 //		SDL_RenderPresent(renderer);
 
+		DrawRam(2, 2, 0x0000, 16, 16);
+		DrawRam(2, 182, 0x8000, 16, 16);
+		DrawCpu(448, 2);
 		DrawCode(448, 72, 26);
 
-		SDL_Delay(10);
+		DrawString(10, 370, "SPACE = Step Instruction    R = RESET    I = IRQ    N = NMI");
+
+//		SDL_Delay(10);
 
 		return true;
 	}
