@@ -761,9 +761,7 @@ public:
 		if (GetKey(olc::Key::DOWN).bReleased) gb.direct.joypad_bits.down = 1;
 		if (GetKey(olc::Key::LEFT).bReleased) gb.direct.joypad_bits.left = 1;
 
-		gb_run_frame(&gb);
-
-
+//		gb_run_frame(&gb);
 		
 		if (GetKey(olc::Key::RIGHT).bPressed)
 		{
