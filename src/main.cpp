@@ -662,6 +662,11 @@ void copy_vram(struct gb_s* gb, const uint8_t _vram[0x2000])
 //	unsigned char msb = priv->Vram[1] & mask;
 }
 
+
+
+
+
+
 int temp = 0;
 
 class GameBoyEmulator : public olc::PixelGameEngine
@@ -678,7 +683,38 @@ public:
 	enum gb_init_error_e gb_ret;
 
 	SDL_Texture* texture;
+
+	std::map<uint16_t, std::string> mapAsm;
+
 public:
+	std::map<uint16_t, std::string> disassemble(uint16_t nStart, uint16_t nStop)
+	{
+		uint32_t addr = nStart;
+		uint8_t value = 0x00, lo = 0x00, hi = 0x00;
+		std::map<uint16_t, std::string> mapLines;
+		uint16_t line_addr = 0;
+
+		auto hex = [](uint32_t n, uint8_t d)
+		{
+			std::string s(d, '0');
+			for (int i = d - 1; i >= 0; i--, n >> 4)
+				s[i] = "0123456789ABCDEF"[n & 0xF];
+			return s;
+		};
+
+		while (addr <= (uint32_t)nStop)
+		{
+			line_addr = addr;
+			std::string sInst = "$" + hex(addr, 4) + ": ";
+			uint8_t opcode = gb.gb_rom_read(&gb, addr++);
+			sInst += "opcode: " + opcode;
+
+			mapLines[line_addr] = sInst;
+		}
+
+		return mapLines;
+	}
+
 	bool OnUserCreate(SDL_Renderer* renderer) override
 	{
 //		m_Emulator = new Emulator();
@@ -707,7 +743,41 @@ public:
 			SDL_TEXTUREACCESS_STREAMING,
 			LCD_WIDTH, LCD_HEIGHT);
 
+		mapAsm = disassemble(0x0000, 0xFFFF);
+
 		return true;
+	}
+
+	void DrawCode(int x, int y, int nLines)
+	{
+		auto it_a = mapAsm.find(gb.cpu_reg.pc);
+		int nLineY = (nLines >> 1) * 10 + y;
+		if (it_a != mapAsm.end())
+		{
+			DrawString(x, nLineY, (*it_a).second, olc::CYAN);
+			while (nLineY < (nLines * 10) + y)
+			{
+				nLineY += 10;
+				if (++it_a != mapAsm.end())
+				{
+					DrawString(x, nLineY, (*it_a).second);
+				}
+			}
+		}
+
+		it_a = mapAsm.find(gb.cpu_reg.pc);
+		nLineY = (nLines >> 1) * 10 + y;
+		if (it_a != mapAsm.end())
+		{
+			while (nLineY > y)
+			{
+				nLineY -= 10;
+				if (--it_a != mapAsm.end())
+				{
+					DrawString(x, nLineY, (*it_a).second);
+				}
+			}
+		}
 	}
 
 	bool OnUserUpdate(float fElapsedTime, SDL_Renderer* renderer) override
@@ -893,6 +963,8 @@ public:
 //		SDL_RenderCopy(renderer, texture, NULL, NULL);
 //		SDL_RenderPresent(renderer);
 
+		DrawCode(448, 72, 26);
+
 		SDL_Delay(10);
 
 		return true;
@@ -938,7 +1010,7 @@ int main()
 
 	GameBoyEmulator demo;
 //	if (demo.Construct(160, 144, 4, 4))
-	if (demo.Construct(300, 250, 4, 4))
+	if (demo.Construct(680, 480, 2, 2))
 			demo.Start();
 
 	return 0;
