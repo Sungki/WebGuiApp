@@ -386,7 +386,7 @@ uint8_t* read_rom_to_ram(const char* file_name)
 	fclose(rom_file);
 
 
-	for (unsigned int i = 0; i <= rom_size; i++)
+/*	for (unsigned int i = 0; i <= rom_size; i++)
 	{
 //		unsigned short tile = (i >> 4) & 511;
 		unsigned short tile = (i >> 4) & 10239;
@@ -398,7 +398,7 @@ uint8_t* read_rom_to_ram(const char* file_name)
 			bitIndex = 1 << (7 - x);
 			tileRom[tile][y][x] = ((rom[i] & bitIndex) ? 1 : 0) + ((rom[i + 1] & bitIndex) ? 2 : 0);
 		}
-	}
+	}*/
 
 	return rom;
 }
@@ -635,7 +635,7 @@ void copy_vram(struct gb_s* gb, const uint8_t _vram[0x2000])
 //		[_vram[x] & 3];
 
 		unsigned short tile = (i >> 4) & 511;
-//		unsigned short y = i / 2;
+		//		unsigned short y = i / 2;
 		unsigned short y = (i >> 1) & 7;
 
 		unsigned bitIndex;
@@ -662,11 +662,6 @@ void copy_vram(struct gb_s* gb, const uint8_t _vram[0x2000])
 //	unsigned char msb = priv->Vram[1] & mask;
 }
 
-
-
-
-
-
 int temp = 0;
 
 class GameBoyEmulator : public olc::PixelGameEngine
@@ -687,27 +682,27 @@ public:
 	std::map<uint16_t, std::string> mapAsm;
 
 public:
-	std::map<uint16_t, std::string> disassemble(uint16_t nStart, uint16_t nStop)
+	std::string hex(uint32_t n, uint8_t d)
+	{
+		std::string s(d, '0');
+		for (int i = d - 1; i >= 0; i--, n >>= 4)
+			s[i] = "0123456789ABCDEF"[n & 0xF];
+		return s;
+	};
+
+	std::map<uint16_t, std::string> disassemble(struct gb_s* gb, uint16_t nStart, uint16_t nStop)
 	{
 		uint32_t addr = nStart;
 		uint8_t value = 0x00, lo = 0x00, hi = 0x00;
 		std::map<uint16_t, std::string> mapLines;
 		uint16_t line_addr = 0;
 
-		auto hex = [](uint32_t n, uint8_t d)
-		{
-			std::string s(d, '0');
-			for (int i = d - 1; i >= 0; i--, n >> 4)
-				s[i] = "0123456789ABCDEF"[n & 0xF];
-			return s;
-		};
-
 		while (addr <= (uint32_t)nStop)
 		{
 			line_addr = addr;
 			std::string sInst = "$" + hex(addr, 4) + ": ";
-			uint8_t opcode = gb.gb_rom_read(&gb, addr++);
-			sInst += "opcode: " + opcode;
+			uint8_t opcode = gb_rom_read(gb, addr++);
+			sInst += "opcode: " + hex(opcode, 2);
 
 			mapLines[line_addr] = sInst;
 		}
@@ -726,7 +721,7 @@ public:
 		priv.rom = NULL;
 		priv.cart_ram = NULL;
 
-		if ((priv.rom = read_rom_to_ram("game.gb")) == NULL)
+		if ((priv.rom = read_rom_to_ram("tetris.gb")) == NULL)
 		{
 			std::cout << "error";
 		}
@@ -743,18 +738,10 @@ public:
 			SDL_TEXTUREACCESS_STREAMING,
 			LCD_WIDTH, LCD_HEIGHT);
 
-		mapAsm = disassemble(0x0000, 0xFFFF);
+		mapAsm = disassemble(&gb, 0x0000, 0xFFFF);
 
 		return true;
 	}
-
-	std::string hex(uint32_t n, uint8_t d)
-	{
-		std::string s(d, '0');
-		for (int i = d - 1; i >= 0; i--, n >>= 4)
-			s[i] = "0123456789ABCDEF"[n & 0xF];
-		return s;
-	};
 
 	void DrawRam(int x, int y, uint16_t nAddr, int nRows, int nColumns)
 	{
@@ -764,7 +751,7 @@ public:
 			std::string sOffset = "$" + hex(nAddr, 4) + ":";
 			for (int col = 0; col < nColumns; col++)
 			{
-				sOffset += " " + hex(gb.gb_rom_read(&gb,nAddr), 2);
+				sOffset += " " + hex(gb_rom_read(&gb,nAddr), 2);
 				nAddr += 1;
 			}
 			DrawString(nRamX, nRamY, sOffset);
@@ -798,7 +785,7 @@ public:
 			}
 		}
 
-		it_a = mapAsm.find(gb.cpu_reg.pc);
+/*		it_a = mapAsm.find(gb.cpu_reg.pc);
 		nLineY = (nLines >> 1) * 10 + y;
 		if (it_a != mapAsm.end())
 		{
@@ -810,7 +797,7 @@ public:
 					DrawString(x, nLineY, (*it_a).second);
 				}
 			}
-		}
+		}*/
 	}
 
 	bool OnUserUpdate(float fElapsedTime, SDL_Renderer* renderer) override
@@ -864,7 +851,7 @@ public:
 		if (GetKey(olc::Key::DOWN).bReleased) gb.direct.joypad_bits.down = 1;
 		if (GetKey(olc::Key::LEFT).bReleased) gb.direct.joypad_bits.left = 1;
 
-//		gb_run_frame(&gb);
+		gb_run_frame(&gb);
 		
 		if (GetKey(olc::Key::RIGHT).bPressed)
 		{
@@ -879,7 +866,7 @@ public:
 
 		Clear(olc::DARK_BLUE);
 
-		int x =0, y=0;
+/*		int x =0, y=0;
 
 		for (int i = temp; i < temp*2; i++, x++)
 		{
@@ -903,10 +890,10 @@ public:
 						Draw(x1 + x * 8, y1 + y * 8, olc::Pixel(30, 30, 30));
 				}
 			}
-		}
+		}*/
 
 
-/*		int x =0, y=0;
+		int x =0, y=0;
 		int count = 0;
 
 		for (unsigned int i = 0x1800; i <= 0x1A5F; i++, x++)
@@ -972,7 +959,7 @@ public:
 			t1 >>= shift;
 			t2 >>= shift;*/
 
-/*			uint8_t c = (t1 & 0x1) | ((t2 & 0x1) << 1);
+			uint8_t c = (t1 & 0x1) | ((t2 & 0x1) << 1);
 
 			for (int y1 = 0; y1 < 8; y1++)
 			{
@@ -988,7 +975,7 @@ public:
 						Draw(x1 + OX - 8, y1 + OY - 16, olc::Pixel(0, 30, 30));
 				}
 			}
-		}*/
+		}
 
 //		SDL_UpdateTexture(texture, NULL, &priv.nameTable, LCD_WIDTH * sizeof(uint16_t));
 //		SDL_UpdateTexture(texture, NULL, &priv.fb, LCD_WIDTH * sizeof(uint16_t));
@@ -996,14 +983,19 @@ public:
 //		SDL_RenderCopy(renderer, texture, NULL, NULL);
 //		SDL_RenderPresent(renderer);
 
-		DrawRam(2, 2, 0x0000, 16, 16);
+		if (GetKey(olc::Key::SPACE).bPressed)
+		{
+			gb_run_frame(&gb);
+		}
+
+//		DrawRam(2, 2, 0x0000, 16, 16);
 		DrawRam(2, 182, 0x8000, 16, 16);
 		DrawCpu(448, 2);
 		DrawCode(448, 72, 26);
 
 		DrawString(10, 370, "SPACE = Step Instruction    R = RESET    I = IRQ    N = NMI");
 
-//		SDL_Delay(10);
+		SDL_Delay(10);
 
 		return true;
 	}
@@ -1048,7 +1040,7 @@ int main()
 
 	GameBoyEmulator demo;
 //	if (demo.Construct(160, 144, 4, 4))
-	if (demo.Construct(680, 480, 2, 2))
+	if (demo.Construct(650, 450, 2, 2))
 			demo.Start();
 
 	return 0;
